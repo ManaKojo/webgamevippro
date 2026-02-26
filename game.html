@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚔ NEXUS WORLD</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap');
+:root{
+  --bg:#04060d;--s1:#080e1a;--s2:#0d1625;--s3:#111e30;
+  --b1:#162035;--b2:#1e2d4a;--b3:#2a3d5a;
+  --accent:#00d4ff;--a2:#ff6b35;--a3:#7c3aed;
+  --green:#00ff88;--red:#ff3355;--yellow:#ffd700;--purple:#a78bfa;
+  --txt:#c8d8f0;--dim:#3a5070;--dim2:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'Exo 2',sans-serif;}
+#app{display:flex;flex-direction:column;height:100vh;}
+
+/* TOPBAR */
+#topbar{height:48px;min-height:48px;background:rgba(4,6,13,.97);border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;padding:0 10px;gap:10px;z-index:200;flex-shrink:0;}
+.logo{font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--accent);
+  text-shadow:0 0 12px rgba(0,212,255,.6);letter-spacing:2px;white-space:nowrap;}
+.logo b{color:var(--a2);}
+.sep{width:1px;height:24px;background:var(--b1);flex-shrink:0;}
+.pav{width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--a3),var(--accent));
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  border:2px solid var(--b2);flex-shrink:0;cursor:pointer;}
+.pinfo{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
+.pname{font-size:12px;font-weight:700;line-height:1;}
+.plvl{font-size:9px;color:var(--yellow);font-family:'Share Tech Mono',monospace;}
+.bars{display:flex;flex-direction:column;gap:3px;width:110px;flex-shrink:0;}
+.bar-row{display:flex;align-items:center;gap:4px;}
+.bar-bg{flex:1;height:5px;background:var(--b2);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+.bar-fill.hp{background:linear-gradient(90deg,var(--red),#ff7055);}
+.bar-fill.mp{background:linear-gradient(90deg,var(--a3),var(--accent));}
+.bar-fill.xp{background:linear-gradient(90deg,var(--yellow),#ffb300);}
+.bar-lbl{font-size:8px;font-family:'Share Tech Mono',monospace;color:var(--dim2);width:24px;text-align:right;}
+.qstats{display:flex;gap:12px;font-family:'Share Tech Mono',monospace;font-size:10px;}
+.qs{display:flex;align-items:center;gap:3px;white-space:nowrap;}
+.qs .k{color:var(--dim2);}
+.tbr{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.ibtn{width:32px;height:32px;border-radius:6px;border:1px solid var(--b1);background:var(--s1);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:all .15s;position:relative;flex-shrink:0;}
+.ibtn:hover{border-color:var(--accent);background:rgba(0,212,255,.06);}
+.ibtn.on{border-color:var(--accent);background:rgba(0,212,255,.12);}
+.ibtn .bdg{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;
+  font-size:7px;font-weight:700;width:13px;height:13px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;}
+.admin-btn{display:flex;align-items:center;gap:5px;padding:0 10px;height:32px;
+  border-radius:6px;border:1px solid rgba(124,58,237,.5);background:rgba(124,58,237,.12);
+  color:var(--purple);cursor:pointer;font-size:11px;font-weight:700;
+  transition:all .15s;white-space:nowrap;text-decoration:none;}
+.admin-btn:hover{border-color:var(--a3);background:rgba(124,58,237,.22);}
+
+/* GAME BODY */
+#game-body{flex:1;display:flex;overflow:hidden;position:relative;}
+
+/* LEFT PANEL */
+#left-panel{width:52px;min-width:52px;background:var(--s1);border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px;z-index:10;flex-shrink:0;}
+.lbtn{width:36px;height:36px;border-radius:8px;border:1px solid var(--b1);background:var(--s2);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .15s;}
+.lbtn:hover{border-color:var(--accent);background:rgba(0,212,255,.06);}
+.lbtn.on{border-color:var(--accent);background:rgba(0,212,255,.12);}
+.ldiv{width:28px;height:1px;background:var(--b1);margin:2px 0;}
+
+/* MAP AREA */
+#map-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg);}
+#mapCanvas{position:absolute;top:0;left:0;cursor:crosshair;}
+#map-bg{position:absolute;inset:0;background-image:
+  linear-gradient(rgba(0,212,255,.015) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,212,255,.015) 1px,transparent 1px);
+  background-size:60px 60px;pointer-events:none;}
+
+/* MINIMAP */
+#minimap{position:absolute;bottom:10px;left:10px;width:140px;height:100px;
+  background:rgba(4,6,13,.9);border:1px solid var(--b2);border-radius:8px;overflow:hidden;z-index:20;}
+#minimapCanvas{width:100%;height:100%;}
+.minimap-label{position:absolute;top:4px;left:6px;font-size:8px;
+  font-family:'Share Tech Mono',monospace;color:var(--dim2);pointer-events:none;}
+
+#coords{position:absolute;bottom:10px;right:10px;font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--dim2);background:rgba(4,6,13,.8);border:1px solid var(--b1);border-radius:4px;
+  padding:4px 8px;z-index:20;}
+
+#move-indicator{position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.4);border-radius:20px;
+  padding:5px 14px;font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--accent);
+  z-index:20;opacity:0;transition:opacity .3s;pointer-events:none;}
+
+#legend{position:absolute;top:10px;left:10px;background:rgba(4,6,13,.88);
+  border:1px solid var(--b1);border-radius:8px;padding:8px 10px;z-index:20;
+  display:flex;flex-direction:column;gap:4px;}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--dim2);}
+.leg-hex{width:12px;height:14px;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);}
+
+/* RIGHT PANEL */
+#right-panel{width:240px;min-width:240px;background:var(--s1);border-left:1px solid var(--b1);
+  display:flex;flex-direction:column;z-index:10;flex-shrink:0;transition:transform .25s ease;}
+#right-panel.hidden{transform:translateX(240px);}
+.rpanel-tab{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0;}
+.rtab{flex:1;padding:8px 4px;text-align:center;font-size:10px;font-weight:700;cursor:pointer;
+  color:var(--dim2);border-bottom:2px solid transparent;transition:all .15s;}
+.rtab:hover{color:var(--txt);}
+.rtab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.rpanel-body{flex:1;overflow:hidden;position:relative;}
+.rpanel-view{position:absolute;inset:0;overflow-y:auto;display:none;padding:8px;}
+.rpanel-view.on{display:block;}
+
+/* CHAT */
+#chat-list{display:flex;flex-direction:column;gap:4px;padding-bottom:4px;}
+.chat-msg{font-size:11px;line-height:1.4;}
+.chat-msg .cn{font-weight:700;margin-right:3px;}
+.chat-msg.system .cn{color:var(--yellow);}
+.chat-msg.combat .cn{color:var(--red);}
+.chat-msg.trade .cn{color:var(--green);}
+.chat-msg.local .cn{color:var(--accent);}
+.chat-msg .ct{color:var(--dim);font-size:9px;font-family:'Share Tech Mono',monospace;}
+#chat-input-wrap{display:flex;gap:4px;padding:6px;border-top:1px solid var(--b1);flex-shrink:0;}
+#chat-input{flex:1;background:var(--s2);border:1px solid var(--b1);color:var(--txt);
+  font-family:'Exo 2',sans-serif;font-size:11px;padding:5px 8px;border-radius:4px;outline:none;}
+#chat-input:focus{border-color:var(--accent);}
+#chat-send{background:var(--accent);color:var(--bg);border:none;border-radius:4px;
+  padding:0 10px;font-size:12px;cursor:pointer;font-weight:700;}
+
+/* NEARBY */
+.near-item{display:flex;align-items:center;gap:8px;padding:7px 6px;border-radius:6px;
+  border:1px solid var(--b1);margin-bottom:4px;cursor:pointer;transition:all .15s;}
+.near-item:hover{border-color:var(--b2);background:rgba(0,212,255,.03);}
+.near-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;flex-shrink:0;}
+.near-name{font-size:11px;font-weight:600;}
+.near-lvl{font-size:9px;color:var(--dim2);font-family:'Share Tech Mono',monospace;}
+
+/* QUESTS */
+.quest-item{padding:8px;border-radius:6px;border:1px solid var(--b1);margin-bottom:6px;background:rgba(0,0,0,.2);}
+.quest-name{font-size:11px;font-weight:700;margin-bottom:4px;}
+.quest-desc{font-size:10px;color:var(--dim2);line-height:1.4;margin-bottom:6px;}
+.quest-prog{height:3px;background:var(--b2);border-radius:2px;overflow:hidden;}
+.quest-fill{height:100%;background:var(--yellow);border-radius:2px;}
+.quest-step{font-size:9px;color:var(--yellow);margin-top:3px;font-family:'Share Tech Mono',monospace;}
+
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;}
+.overlay.show{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:12px;padding:24px;
+  max-width:90vw;max-height:85vh;overflow-y:auto;position:relative;}
+.modal-close{position:absolute;top:12px;right:14px;cursor:pointer;font-size:16px;
+  background:none;border:none;color:var(--dim2);transition:color .15s;}
+.modal-close:hover{color:var(--txt);}
+.modal-title{font-size:17px;font-weight:900;margin-bottom:4px;}
+.modal-sub{font-size:11px;color:var(--dim2);margin-bottom:16px;}
+
+/* INVENTORY */
+.inv-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;
+  background:var(--bg);border-radius:8px;padding:8px;border:1px solid var(--b1);}
+.inv-slot{width:100%;aspect-ratio:1;border-radius:5px;border:1px solid var(--b1);background:var(--s2);
+  display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;
+  position:relative;transition:all .15s;}
+.inv-slot:hover{border-color:var(--accent);background:rgba(0,212,255,.06);}
+.inv-slot.empty{opacity:.25;}
+.inv-slot .qty{position:absolute;bottom:1px;right:3px;font-size:8px;font-weight:700;
+  color:var(--yellow);font-family:'Share Tech Mono',monospace;}
+.inv-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.inv-tab{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;
+  border:1px solid var(--b1);background:var(--s2);color:var(--dim2);transition:all .15s;}
+.inv-tab:hover{color:var(--txt);}
+.inv-tab.on{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.08);}
+.inv-stat-box{margin-top:12px;padding:10px;border-radius:8px;background:var(--bg);
+  border:1px solid var(--b1);display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.ist{font-size:11px;display:flex;justify-content:space-between;}
+.ist .ik{color:var(--dim2);}
+.ist .iv{font-weight:700;font-family:'Share Tech Mono',monospace;}
+
+/* COMBAT */
+.enemy-portrait{width:80px;height:80px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(255,51,85,.2),rgba(255,107,53,.1));
+  border:2px solid rgba(255,51,85,.4);display:flex;align-items:center;justify-content:center;
+  font-size:40px;margin:0 auto 12px;}
+.enemy-name{text-align:center;font-size:18px;font-weight:900;color:var(--red);margin-bottom:4px;}
+.enemy-hp-txt{text-align:center;font-size:11px;color:var(--dim2);font-family:'Share Tech Mono',monospace;margin-bottom:10px;}
+.hp-bar{height:8px;background:rgba(255,51,85,.2);border-radius:4px;overflow:hidden;margin-bottom:16px;}
+.hp-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--a2));border-radius:4px;transition:width .4s ease;}
+.question-box{background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:14px;margin-bottom:12px;}
+.question-label{font-size:9px;font-family:'Share Tech Mono',monospace;color:var(--dim2);margin-bottom:6px;letter-spacing:1px;}
+.question-text{font-size:14px;font-weight:600;line-height:1.5;}
+.answers{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.answer-btn{padding:10px 14px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);
+  color:var(--txt);cursor:pointer;text-align:left;font-family:'Exo 2',sans-serif;font-size:13px;transition:all .15s;}
+.answer-btn:hover{border-color:var(--accent);background:rgba(0,212,255,.07);}
+.answer-btn.correct{border-color:var(--green)!important;background:rgba(0,255,136,.1)!important;color:var(--green)!important;}
+.answer-btn.wrong{border-color:var(--red)!important;background:rgba(255,51,85,.1)!important;color:var(--red)!important;}
+.combat-actions{display:flex;gap:8px;}
+.cact{flex:1;padding:8px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);
+  cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;text-align:center;}
+.cact.run{border-color:rgba(255,215,0,.3);color:var(--yellow);}
+.cact.item{border-color:rgba(0,255,136,.3);color:var(--green);}
+.cact:hover{border-color:var(--b3);}
+.combat-log{max-height:80px;overflow-y:auto;font-size:10px;font-family:'Share Tech Mono',monospace;
+  color:var(--dim2);line-height:1.7;border-top:1px solid var(--b1);padding-top:8px;margin-top:8px;}
+
+/* STATS */
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;
+  border-bottom:1px solid rgba(22,32,53,.8);font-size:13px;}
+.stat-row:last-child{border-bottom:none;}
+.stat-name{color:var(--dim2);}
+.stat-val{font-weight:700;font-family:'Share Tech Mono',monospace;}
+.sbar{width:80px;height:4px;background:var(--b1);border-radius:2px;overflow:hidden;}
+.sbar-fill{height:100%;border-radius:2px;}
+
+/* TOAST */
+#toast-wrap{position:fixed;top:54px;right:10px;z-index:600;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
+.toast{background:var(--s1);border:1px solid var(--b2);border-radius:8px;padding:10px 14px;
+  font-size:12px;max-width:260px;animation:slideIn .3s ease,fadeOut .4s ease 2.6s forwards;pointer-events:auto;}
+.toast.success{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.07);}
+.toast.danger{border-color:rgba(255,51,85,.4);background:rgba(255,51,85,.07);}
+.toast.info{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.06);}
+.toast.warn{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.06);}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes fadeOut{from{opacity:1;}to{opacity:0;transform:translateX(110%);}}
+
+/* HEX POPUP */
+.hex-popup{position:absolute;z-index:50;background:rgba(4,6,13,.96);border:1px solid var(--b2);
+  border-radius:8px;padding:10px 14px;min-width:160px;font-size:11px;pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);}
+.hex-popup .hp-name{font-weight:700;font-size:13px;margin-bottom:4px;}
+.hex-popup .hp-biome{color:var(--dim2);margin-bottom:6px;font-family:'Share Tech Mono',monospace;font-size:10px;}
+.hex-popup .hp-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--b1);}
+.hex-popup .hp-row:last-child{border-bottom:none;}
+.hex-popup .hp-v{font-family:'Share Tech Mono',monospace;color:var(--accent);}
+
+/* ENCOUNTER FLASH */
+#encounter-flash{position:fixed;inset:0;z-index:400;background:rgba(255,51,85,.07);
+  pointer-events:none;opacity:0;transition:opacity .15s;border:3px solid rgba(255,51,85,.4);}
+#encounter-flash.show{opacity:1;}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;z-index:1000;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;}
+#login-screen::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 50%,rgba(124,58,237,.12) 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 20%,rgba(0,212,255,.08) 0%,transparent 50%),
+    radial-gradient(ellipse at 60% 80%,rgba(255,107,53,.07) 0%,transparent 50%);
+  animation:bgPulse 8s ease-in-out infinite alternate;}
+#login-screen::after{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);
+  background-size:50px 50px;}
+@keyframes bgPulse{0%{opacity:.6;}100%{opacity:1;}}
+.login-box{position:relative;z-index:1;background:rgba(8,14,26,.94);border:1px solid var(--b2);
+  border-radius:16px;padding:40px;width:380px;max-width:90vw;text-align:center;
+  box-shadow:0 0 60px rgba(0,212,255,.08),0 0 120px rgba(124,58,237,.06);}
+.login-logo{font-family:'Share Tech Mono',monospace;font-size:32px;color:var(--accent);
+  text-shadow:0 0 30px rgba(0,212,255,.7);letter-spacing:4px;margin-bottom:4px;}
+.login-logo span{color:var(--a2);}
+.login-sub{font-size:11px;color:var(--dim2);letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:28px;font-family:'Share Tech Mono',monospace;}
+.login-feats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0;text-align:left;}
+.lf{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--dim2);line-height:1.4;}
+.login-btn-discord{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  padding:13px;border-radius:8px;border:1px solid rgba(88,101,242,.5);background:rgba(88,101,242,.15);
+  color:var(--txt);cursor:pointer;font-size:14px;font-weight:700;font-family:'Exo 2',sans-serif;
+  transition:all .2s;margin-bottom:10px;}
+.login-btn-discord:hover{background:rgba(88,101,242,.3);border-color:rgba(88,101,242,.8);transform:translateY(-1px);}
+.login-guest{font-size:11px;color:var(--dim2);cursor:pointer;transition:color .15s;}
+.login-guest:hover{color:var(--txt);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">⚔ NEXUS<span>WORLD</span></div>
+    <div class="login-sub">Browser RPG · Season I</div>
+    <div class="login-feats">
+      <div class="lf"><span>🗺</span><span>Hex world map thời gian thực</span></div>
+      <div class="lf"><span>📚</span><span>Combat bằng câu hỏi kiến thức</span></div>
+      <div class="lf"><span>🏙</span><span>Thành phố tự tiến hóa</span></div>
+      <div class="lf"><span>⚔</span><span>PvP, Raid & Boss tuần</span></div>
+    </div>
+    <button class="login-btn-discord" onclick="loginDiscord()">
+      <span style="font-size:20px">🎮</span> Đăng nhập bằng Discord
+    </button>
+    <div class="login-guest" onclick="loginGuest()">▷ Chơi thử không cần tài khoản</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="logo">⚔<b>NEXUS</b></div>
+    <div class="sep"></div>
+    <div class="pav" onclick="openStats()" title="Nhân vật">🐉</div>
+    <div class="pinfo">
+      <div class="pname" id="pname-display">NightWolf</div>
+      <div class="plvl" id="plvl-display">LV 12 · Chiến Binh</div>
+    </div>
+    <div class="sep"></div>
+    <div class="bars">
+      <div class="bar-row">
+        <div class="bar-bg"><div class="bar-fill hp" id="bar-hp" style="width:75%"></div></div>
+        <div class="bar-lbl" id="lbl-hp">75</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-bg"><div class="bar-fill mp" id="bar-mp" style="width:60%"></div></div>
+        <div class="bar-lbl" id="lbl-mp">60</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-bg"><div class="bar-fill xp" id="bar-xp" style="width:42%"></div></div>
+        <div class="bar-lbl">XP</div>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <div class="qstats">
+      <div class="qs"><span class="k">💰</span><span id="stat-coin">1,240</span></div>
+      <div class="qs"><span class="k">⚔</span><span id="stat-atk" style="color:var(--red)">48</span></div>
+      <div class="qs"><span class="k">🛡</span><span id="stat-def" style="color:var(--accent)">31</span></div>
+      <div class="qs"><span class="k">🍀</span><span id="stat-luck" style="color:var(--green)">22</span></div>
+    </div>
+    <div class="tbr">
+      <div class="ibtn" id="btn-inv" onclick="openInventory()" title="Kho đồ [I]">🎒<div class="bdg">3</div></div>
+      <div class="ibtn on" id="btn-chat" onclick="toggleRight()" title="Chat [C]">💬</div>
+      <div class="ibtn" onclick="centerOnPlayer();renderMap()" title="Về vị trí [M]">🎯</div>
+      <div class="ibtn" onclick="showToast('⚔ Bang Hội: Đang phát triển','info')" title="Guild">⚔</div>
+      <div class="ibtn" onclick="showToast('🏆 Leaderboard: Đang tải...','info')" title="Xếp hạng">🏆</div>
+      <div class="sep"></div>
+      <a class="admin-btn" href="admin.html" target="_blank" onclick="markAdminLink()">⚙ Admin ↗</a>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div id="game-body">
+
+    <!-- LEFT PANEL -->
+    <div id="left-panel">
+      <div class="lbtn on" title="World Map" onclick="setView('world',this)">🌍</div>
+      <div class="lbtn" title="Local Map" onclick="setView('local',this)">🏘</div>
+      <div class="ldiv"></div>
+      <div class="lbtn" title="Quest" onclick="openRight('quest')">📜</div>
+      <div class="lbtn" title="Nhân vật" onclick="openStats()">👤</div>
+      <div class="lbtn" title="Kỹ năng" onclick="showToast('✨ Kỹ năng: Đang phát triển','info')">✨</div>
+      <div class="lbtn" title="Shop" onclick="showToast('🛒 Shop: Đến Thành Phố để mua','info')">🛒</div>
+      <div class="ldiv"></div>
+      <div class="lbtn" title="Cài đặt" onclick="showToast('⚙ Cài đặt','info')">⚙</div>
+      <div class="lbtn" title="Thoát" onclick="logout()" style="border-color:rgba(255,51,85,.3)">🚪</div>
+    </div>
+
+    <!-- MAP -->
+    <div id="map-wrap">
+      <div id="map-bg"></div>
+      <canvas id="mapCanvas"></canvas>
+
+      <div id="minimap">
+        <canvas id="minimapCanvas" width="140" height="100"></canvas>
+        <div class="minimap-label">MINI MAP</div>
+      </div>
+
+      <div id="coords">HEX (0, 0)</div>
+
+      <div id="move-indicator">⏱ Di chuyển: <span id="move-time">3</span>s</div>
+
+      <div id="legend">
+        <div class="leg-item"><div class="leg-hex" style="background:#1a4023"></div>🌲 Rừng</div>
+        <div class="leg-item"><div class="leg-hex" style="background:#3a4a1a"></div>🌿 Đồng bằng</div>
+        <div class="leg-item"><div class="leg-hex" style="background:#2a2a3a"></div>⛰ Núi</div>
+        <div class="leg-item"><div class="leg-hex" style="background:#4a3a1a"></div>🏜 Sa mạc</div>
+        <div class="leg-item"><div class="leg-hex" style="background:#1a2d2d"></div>🌊 Đầm lầy</div>
+        <div class="leg-item"><div class="leg-hex" style="background:#2d1a3a"></div>🏙 Thành phố</div>
+        <div class="leg-item"><div class="leg-hex" style="background:#0d1c33"></div>💧 Nước</div>
+        <div class="leg-item"><div class="leg-hex" style="background:#1a3030"></div>🛡 An toàn</div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div id="right-panel">
+      <div class="rpanel-tab">
+        <div class="rtab on" id="rtab-chat" onclick="openRight('chat')">💬 Chat</div>
+        <div class="rtab" id="rtab-near" onclick="openRight('near')">👥 Gần</div>
+        <div class="rtab" id="rtab-quest" onclick="openRight('quest')">📜 Quest</div>
+      </div>
+      <div class="rpanel-body">
+        <div class="rpanel-view on" id="rpv-chat"><div id="chat-list"></div></div>
+        <div class="rpanel-view" id="rpv-near"><div id="near-list"></div></div>
+        <div class="rpanel-view" id="rpv-quest">
+          <div class="quest-item">
+            <div class="quest-name">📜 Kẻ Thù Trong Bóng Tối</div>
+            <div class="quest-desc">Tiêu diệt 3 Sói Ma tại Rừng phía Đông</div>
+            <div class="quest-prog"><div class="quest-fill" style="width:66%"></div></div>
+            <div class="quest-step">2 / 3 hoàn thành</div>
+          </div>
+          <div class="quest-item">
+            <div class="quest-name">💬 Lời Nhắn Lão Thương Nhân</div>
+            <div class="quest-desc">Tới Thị Trấn Bắc Môn gặp NPC</div>
+            <div class="quest-prog"><div class="quest-fill" style="width:0%"></div></div>
+            <div class="quest-step">0 / 1 hoàn thành</div>
+          </div>
+          <div class="quest-item" style="border-color:rgba(0,255,136,.2)">
+            <div class="quest-name" style="color:var(--green)">✅ Sống Sót Ngày Đầu</div>
+            <div class="quest-desc" style="color:var(--dim2)">Đã hoàn thành · +100 XP +50 coin</div>
+            <div class="quest-prog"><div class="quest-fill" style="width:100%;background:var(--green)"></div></div>
+          </div>
+        </div>
+      </div>
+      <div id="chat-input-wrap">
+        <input id="chat-input" type="text" placeholder="Nhập tin nhắn..." maxlength="120"
+          onkeydown="if(event.key==='Enter')sendChat()">
+        <button id="chat-send" onclick="sendChat()">▶</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ENCOUNTER FLASH -->
+<div id="encounter-flash"></div>
+
+<!-- TOASTS -->
+<div id="toast-wrap"></div>
+
+<!-- INVENTORY MODAL -->
+<div class="overlay" id="inv-modal" onclick="if(event.target===this)closeModal('inv-modal')">
+  <div class="modal" style="width:500px">
+    <button class="modal-close" onclick="closeModal('inv-modal')">✕</button>
+    <div class="modal-title">🎒 Kho Đồ</div>
+    <div class="modal-sub" id="inv-sub">NightWolf · LV 12 · 20/40 slot</div>
+    <div class="inv-tabs">
+      <div class="inv-tab on" onclick="filterInv(this,'all')">Tất cả</div>
+      <div class="inv-tab" onclick="filterInv(this,'weapon')">⚔ Vũ khí</div>
+      <div class="inv-tab" onclick="filterInv(this,'armor')">🛡 Giáp</div>
+      <div class="inv-tab" onclick="filterInv(this,'item')">🧪 Vật phẩm</div>
+      <div class="inv-tab" onclick="filterInv(this,'book')">📚 Sách</div>
+    </div>
+    <div class="inv-grid" id="inv-grid"></div>
+    <div class="inv-stat-box">
+      <div class="ist"><span class="ik">⚔ ATK</span><span class="iv" style="color:var(--red)">48</span></div>
+      <div class="ist"><span class="ik">🛡 DEF</span><span class="iv" style="color:var(--accent)">31</span></div>
+      <div class="ist"><span class="ik">💨 SPD</span><span class="iv" style="color:var(--green)">25</span></div>
+      <div class="ist"><span class="ik">🍀 LUCK</span><span class="iv" style="color:var(--purple)">22</span></div>
+      <div class="ist"><span class="ik">📦 Slot</span><span class="iv">20 / 40</span></div>
+      <div class="ist"><span class="ik">💰 Coin</span><span class="iv" style="color:var(--yellow)" id="inv-coin">1,240</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMBAT MODAL -->
+<div class="overlay" id="combat-modal">
+  <div class="modal" style="width:480px">
+    <div class="enemy-portrait" id="c-icon">🐺</div>
+    <div class="enemy-name" id="c-name">Sói Ma</div>
+    <div class="enemy-hp-txt" id="c-hp">HP: 120 / 200</div>
+    <div class="hp-bar"><div class="hp-fill" id="c-hpfill" style="width:60%"></div></div>
+    <div class="question-box">
+      <div class="question-label">CÂU HỎI · ĐỘ KHÓ ⭐⭐</div>
+      <div class="question-text" id="c-q">Đang tải...</div>
+    </div>
+    <div class="answers" id="c-answers"></div>
+    <div class="combat-actions">
+      <div class="cact item" onclick="useItem()">🧪 Dùng item</div>
+      <div class="cact run" onclick="runAway()">💨 Bỏ chạy</div>
+    </div>
+    <div class="combat-log" id="c-log"></div>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="overlay" id="stats-modal" onclick="if(event.target===this)closeModal('stats-modal')">
+  <div class="modal" style="width:400px">
+    <button class="modal-close" onclick="closeModal('stats-modal')">✕</button>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div class="pav" style="width:56px;height:56px;font-size:28px;flex-shrink:0">🐉</div>
+      <div>
+        <div class="modal-title" id="sm-name">NightWolf</div>
+        <div style="font-size:11px;color:var(--dim2)">LV 12 · Chiến Binh · Guild: StormBreaker</div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <span style="font-size:10px;background:rgba(255,51,85,.15);color:var(--red);border:1px solid rgba(255,51,85,.3);border-radius:3px;padding:1px 7px">⚔ Fighter</span>
+          <span style="font-size:10px;background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.3);border-radius:3px;padding:1px 7px">🎖 Rank B</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="stat-row"><span class="stat-name">❤️ HP tối đa</span><div style="display:flex;align-items:center;gap:8px"><div class="sbar"><div class="sbar-fill" style="width:75%;background:var(--red)"></div></div><span class="stat-val" style="color:var(--red)" id="sm-hp">150</span></div></div>
+      <div class="stat-row"><span class="stat-name">💧 MP tối đa</span><div style="display:flex;align-items:center;gap:8px"><div class="sbar"><div class="sbar-fill" style="width:60%;background:var(--accent)"></div></div><span class="stat-val" style="color:var(--accent)">80</span></div></div>
+      <div class="stat-row"><span class="stat-name">⚔️ ATK</span><div style="display:flex;align-items:center;gap:8px"><div class="sbar"><div class="sbar-fill" style="width:60%;background:var(--red)"></div></div><span class="stat-val" style="color:var(--red)">48</span></div></div>
+      <div class="stat-row"><span class="stat-name">🛡️ DEF</span><div style="display:flex;align-items:center;gap:8px"><div class="sbar"><div class="sbar-fill" style="width:40%;background:var(--accent)"></div></div><span class="stat-val" style="color:var(--accent)">31</span></div></div>
+      <div class="stat-row"><span class="stat-name">💨 SPD</span><div style="display:flex;align-items:center;gap:8px"><div class="sbar"><div class="sbar-fill" style="width:32%;background:var(--green)"></div></div><span class="stat-val" style="color:var(--green)">25</span></div></div>
+      <div class="stat-row"><span class="stat-name">🍀 LUCK</span><div style="display:flex;align-items:center;gap:8px"><div class="sbar"><div class="sbar-fill" style="width:28%;background:var(--purple)"></div></div><span class="stat-val" style="color:var(--purple)">22</span></div></div>
+      <div class="stat-row"><span class="stat-name">⭐ EXP</span><span class="stat-val" style="color:var(--yellow)">4,200 / 10,000</span></div>
+      <div class="stat-row"><span class="stat-name">💰 Coin</span><span class="stat-val" style="color:var(--yellow)" id="sm-coin">1,240</span></div>
+      <div class="stat-row"><span class="stat-name">🎯 Trận thắng</span><span class="stat-val" id="sm-wins">0</span></div>
+      <div class="stat-row"><span class="stat-name">🗺 Hex khám phá</span><span class="stat-val" id="sm-explore">0</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- HEX POPUP -->
+<div class="hex-popup" id="hex-popup" style="display:none"></div>
+
+<script>
+/* ══════════ STATE ══════════ */
+const G={
+  player:{name:'NightWolf',level:12,hp:75,maxHp:100,mp:60,maxMp:100,xp:42,
+    atk:48,def:31,spd:25,luck:22,coin:1240,x:20,y:15,class:'Chiến Binh',
+    guild:'StormBreaker',wins:0,explored:0},
+  map:{cols:60,rows:40,cW:36,cH:32},
+  camera:{x:0,y:0},
+  hexData:[],
+  view:'world',
+  moving:false,
+  inCombat:false,
+  targetHex:null,
+  hoveredHex:null,
+  dragStart:null,
+  dragging:false,
+  rightOpen:true,
+  combatState:null,
+  chatMsgs:[],
+};
+
+const BIOMES={
+  forest: {c:'#1a4023',d:'#102818',lbl:'🌲 Rừng',    danger:.20},
+  plain:  {c:'#3a4a1a',d:'#252f10',lbl:'🌿 Đồng bằng',danger:.05},
+  mountain:{c:'#2a2a3c',d:'#181828',lbl:'⛰ Núi',     danger:.10},
+  desert: {c:'#4a3a1a',d:'#2e2210',lbl:'🏜 Sa mạc',  danger:.08},
+  swamp:  {c:'#1a2d2a',d:'#0e1c18',lbl:'🌊 Đầm lầy', danger:.25},
+  water:  {c:'#0d1c33',d:'#08101f',lbl:'💧 Nước',    danger:.00},
+  city:   {c:'#2d1a3a',d:'#1a0f22',lbl:'🏙 Thành phố',danger:.00},
+  safe:   {c:'#1a3030',d:'#0f1e1e',lbl:'🛡 An toàn', danger:.00},
+};
+const BKEYS=Object.keys(BIOMES);
+const CITY_NAMES=['Bắc Môn','Nam Thành','Tây Đô','Đông Kinh','Trung Nguyên','Thiên Sơn','Hải Môn','Lam Sơn'];
+
+const QS=[
+  {q:'Đơn vị đo điện tích trong SI?',a:'Coulomb (C)',w:['Volt (V)','Ampere (A)','Watt (W)']},
+  {q:'Ký hiệu hóa học "Fe" là nguyên tố nào?',a:'Sắt (Iron)',w:['Đồng (Cu)','Vàng (Au)','Bạc (Ag)']},
+  {q:'E=mc² được phát triển bởi ai?',a:'Albert Einstein',w:['Isaac Newton','Nikola Tesla','Max Planck']},
+  {q:'Hành tinh lớn nhất Hệ Mặt Trời?',a:'Sao Mộc',w:['Sao Thổ','Sao Hải Vương','Sao Thiên Vương']},
+  {q:'Cố đô Việt Nam trước 1945?',a:'Huế',w:['Hà Nội','Đà Nẵng','Sài Gòn']},
+  {q:'Ngôn ngữ lập trình nào ra đời đầu tiên?',a:'FORTRAN',w:['COBOL','BASIC','C']},
+  {q:'Tốc độ ánh sáng trong chân không?',a:'~300,000 km/s',w:['~150,000 km/s','~450,000 km/s','~200,000 km/s']},
+  {q:'DNA là viết tắt của?',a:'Deoxyribonucleic Acid',w:['Digital Nucleic Acid','Dynamic Nuclear Array','Dense Nucleotide Assembly']},
+  {q:'Nguyên tử có cấu tạo gồm?',a:'Proton, Neutron, Electron',w:['Proton và Electron','Neutron và Photon','Quark và Lepton']},
+  {q:'Bạch Kim có ký hiệu hóa học là?',a:'Pt',w:['Pd','Au','Ag']},
+];
+
+const ENEMIES=[
+  {name:'Sói Ma',icon:'🐺',maxHp:200,xp:80,coin:30},
+  {name:'Rắn Khổng Lồ',icon:'🐍',maxHp:150,xp:60,coin:25},
+  {name:'Quỷ Đầm Lầy',icon:'👻',maxHp:180,xp:70,coin:28},
+  {name:'Thổ Phỉ Sa Mạc',icon:'🗡️',maxHp:250,xp:100,coin:45},
+  {name:'Gấu Núi',icon:'🐻',maxHp:300,xp:120,coin:55},
+];
+
+const ITEMS=[
+  {icon:'🗡️',name:'Kiếm Đồng',type:'weapon',qty:1},
+  {icon:'🛡️',name:'Giáp Da',type:'armor',qty:1},
+  {icon:'🧪',name:'Bình Máu',type:'item',qty:5},
+  {icon:'📚',name:'Sách Tri Thức',type:'book',qty:2},
+  {icon:'🏹',name:'Cung Gỗ',type:'weapon',qty:1},
+  {icon:'💍',name:'Nhẫn Phòng Thủ',type:'armor',qty:1},
+  {icon:'🧲',name:'Bùa May Mắn',type:'item',qty:3},
+  {icon:'🔮',name:'Tinh Thể Mana',type:'item',qty:4},
+  {icon:'📜',name:'Bản Đồ Cổ',type:'book',qty:1},
+  {icon:'⚗️',name:'Thuốc ATK',type:'item',qty:2},
+  {icon:'🎭',name:'Mặt Nạ Tối',type:'armor',qty:1},
+  {icon:'🪄',name:'Gậy Phù Thủy',type:'weapon',qty:1},
+];
+
+/* ══════════ MAP GEN ══════════ */
+function srand(s){return()=>{s=(s*9301+49297)%233280;return s/233280;};}
+
+function genMap(){
+  const r=srand(42);
+  const {cols,rows}=G.map;
+  G.hexData=[];
+  let explored=0;
+  for(let row=0;row<rows;row++){
+    G.hexData[row]=[];
+    for(let col=0;col<cols;col++){
+      const v=r();
+      let biome;
+      if(v<.12)biome='water';
+      else if(v<.25)biome='mountain';
+      else if(v<.42)biome='forest';
+      else if(v<.56)biome='swamp';
+      else if(v<.70)biome='desert';
+      else biome='plain';
+      // Fixed cities
+      const cities=[[8,15],[25,40],[18,8],[12,50],[30,22],[35,10]];
+      for(const[cr,cc]of cities)if(row===cr&&col===cc)biome='city';
+      // Safe zones
+      if((row===5&&col===5)||(row===20&&col===20))biome='safe';
+      G.hexData[row][col]={biome,explored:false,
+        name:biome==='city'?CITY_NAMES[Math.floor(r()*CITY_NAMES.length)]:null,
+        activity:Math.floor(r()*100)};
+    }
+  }
+  revealAround(G.player.y,G.player.x,7);
+}
+
+function revealAround(pr,pc,rad){
+  let cnt=0;
+  for(let r=Math.max(0,pr-rad);r<=Math.min(G.map.rows-1,pr+rad);r++){
+    for(let c=Math.max(0,pc-rad);c<=Math.min(G.map.cols-1,pc+rad);c++){
+      if(Math.sqrt((r-pr)**2+(c-pc)**2)<=rad&&!G.hexData[r][c].explored){
+        G.hexData[r][c].explored=true;cnt++;
+      }
+    }
+  }
+  G.player.explored+=cnt;
+}
+
+/* ══════════ CANVAS ══════════ */
+const canvas=document.getElementById('mapCanvas');
+const ctx=canvas.getContext('2d');
+
+function initCanvas(){
+  resize();
+  window.addEventListener('resize',resize);
+  canvas.addEventListener('click',onMapClick);
+  canvas.addEventListener('mousemove',onMapHover);
+  canvas.addEventListener('mousedown',e=>{G.dragStart={x:e.clientX,y:e.clientY,cx:G.camera.x,cy:G.camera.y};G.dragging=false;});
+  canvas.addEventListener('mouseup',()=>{G.dragging=false;G.dragStart=null;});
+  canvas.addEventListener('mouseleave',()=>{G.dragging=false;document.getElementById('hex-popup').style.display='none';});
+  canvas.addEventListener('wheel',e=>{G.camera.x+=e.deltaX*.5;G.camera.y+=e.deltaY*.5;renderMap();},{passive:true});
+  centerOnPlayer();
+}
+
+function resize(){
+  const w=document.getElementById('map-wrap');
+  canvas.width=w.clientWidth;canvas.height=w.clientHeight;
+  renderMap();
+}
+
+function centerOnPlayer(){
+  const {cW,cH}=G.map;
+  G.camera.x=G.player.x*cW*.75-canvas.width/2;
+  G.camera.y=G.player.y*cH+(G.player.x%2?cH/2:0)-canvas.height/2;
+}
+
+function hexToScreen(col,row){
+  const {cW,cH}=G.map;
+  return{x:col*cW*.75-G.camera.x, y:row*cH+(col%2?cH/2:0)-G.camera.y};
+}
+
+function screenToHex(sx,sy){
+  const {cW,cH}=G.map;
+  const col=Math.max(0,Math.min(G.map.cols-1,Math.round((sx+G.camera.x)/(cW*.75))));
+  const row=Math.max(0,Math.min(G.map.rows-1,Math.round(((sy+G.camera.y)-(col%2?cH/2:0))/cH)));
+  return{col,row};
+}
+
+function hexPath(x,y,w,h){
+  const hw=w/2,hh=h/2,qw=w/4;
+  ctx.beginPath();
+  ctx.moveTo(x-qw,y-hh);ctx.lineTo(x+qw,y-hh);ctx.lineTo(x+hw,y);
+  ctx.lineTo(x+qw,y+hh);ctx.lineTo(x-qw,y+hh);ctx.lineTo(x-hw,y);
+  ctx.closePath();
+}
+
+function renderMap(){
+  if(!ctx)return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const {cols,rows,cW,cH}=G.map;
+  const sc=Math.max(0,Math.floor(G.camera.x/(cW*.75))-1);
+  const ec=Math.min(cols-1,sc+Math.ceil(canvas.width/(cW*.75))+2);
+  const sr=Math.max(0,Math.floor(G.camera.y/cH)-1);
+  const er=Math.min(rows-1,sr+Math.ceil(canvas.height/cH)+2);
+
+  for(let c=sc;c<=ec;c++){
+    for(let r=sr;r<=er;r++){
+      const cell=G.hexData[r]?.[c];if(!cell)continue;
+      const {x,y}=hexToScreen(c,r);
+      const bm=BIOMES[cell.biome];
+
+      if(!cell.explored){
+        hexPath(x,y,cW-1,cH-1);ctx.fillStyle='#050a12';ctx.fill();
+        continue;
+      }
+
+      // Base
+      hexPath(x,y,cW-1,cH-1);ctx.fillStyle=bm.c;ctx.fill();
+      // Border
+      ctx.strokeStyle=bm.d;ctx.lineWidth=.7;ctx.stroke();
+      // Hover highlight
+      if(G.hoveredHex&&G.hoveredHex.col===c&&G.hoveredHex.row===r){
+        hexPath(x,y,cW-1,cH-1);ctx.fillStyle='rgba(255,255,255,0.06)';ctx.fill();
+      }
+      // City label
+      if(cell.biome==='city'&&cell.name){
+        ctx.font='6px Share Tech Mono';ctx.fillStyle='#c8a0ff';ctx.textAlign='center';
+        ctx.fillText(cell.name,x,y+2);
+      }
+      // Safe icon
+      if(cell.biome==='safe'){ctx.font='9px serif';ctx.textAlign='center';ctx.fillText('🛡',x,y+3);}
+    }
+  }
+
+  // Target path
+  if(G.targetHex){
+    const {x:px,y:py}=hexToScreen(G.player.x,G.player.y);
+    const {x:tx,y:ty}=hexToScreen(G.targetHex.col,G.targetHex.row);
+    hexPath(tx,ty,cW-1,cH-1);ctx.fillStyle='rgba(0,212,255,0.08)';ctx.fill();
+    ctx.strokeStyle='rgba(0,212,255,0.4)';ctx.lineWidth=1;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(tx,ty);
+    ctx.strokeStyle='rgba(0,212,255,0.2)';ctx.lineWidth=1.5;
+    ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
+  }
+
+  // Player glow
+  const {x:px,y:py}=hexToScreen(G.player.x,G.player.y);
+  const g=ctx.createRadialGradient(px,py,0,px,py,20);
+  g.addColorStop(0,'rgba(0,212,255,0.35)');g.addColorStop(1,'rgba(0,212,255,0)');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(px,py,20,0,Math.PI*2);ctx.fill();
+  hexPath(px,py,cW-1,cH-1);ctx.fillStyle='rgba(0,212,255,0.12)';ctx.fill();
+  ctx.strokeStyle='rgba(0,212,255,0.8)';ctx.lineWidth=1.5;ctx.stroke();
+  // Player dot
+  ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fillStyle='#00d4ff';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+
+  drawMinimap();
+}
+
+function drawMinimap(){
+  const mc=document.getElementById('minimapCanvas');
+  const mx=mc.getContext('2d');
+  const {cols,rows}=G.map;
+  mx.clearRect(0,0,140,100);
+  const sw=140/cols,sh=100/rows;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const cell=G.hexData[r]?.[c];
+    mx.fillStyle=cell?.explored?BIOMES[cell.biome].c:'#050a12';
+    mx.fillRect(c*sw,r*sh,sw+.5,sh+.5);
+  }
+  mx.fillStyle='#00d4ff';mx.beginPath();
+  mx.arc(G.player.x*sw,G.player.y*sh,2.5,0,Math.PI*2);mx.fill();
+  const {cW,cH}=G.map;
+  mx.strokeStyle='rgba(0,212,255,0.4)';mx.lineWidth=1;
+  mx.strokeRect((G.camera.x/(cW*.75))*sw,(G.camera.y/cH)*sh,
+    (canvas.width/(cW*.75))*sw,(canvas.height/cH)*sh);
+}
+
+/* ══════════ INPUT ══════════ */
+function onMapHover(e){
+  const rect=canvas.getBoundingClientRect();
+  const sx=e.clientX-rect.left,sy=e.clientY-rect.top;
+  if(G.dragStart){
+    const dx=Math.abs(e.clientX-G.dragStart.x),dy=Math.abs(e.clientY-G.dragStart.y);
+    if(dx>4||dy>4)G.dragging=true;
+  }
+  if(G.dragging&&G.dragStart){
+    G.camera.x=G.dragStart.cx-(e.clientX-G.dragStart.x);
+    G.camera.y=G.dragStart.cy-(e.clientY-G.dragStart.y);
+    renderMap();return;
+  }
+  const {col,row}=screenToHex(sx,sy);
+  G.hoveredHex={col,row};
+  const cell=G.hexData[row]?.[col];
+  const bm=cell?.biome?BIOMES[cell.biome]:null;
+  document.getElementById('coords').textContent=
+    cell?.explored?`HEX (${col},${row}) · ${bm?.lbl||'?'}  ${bm?.danger>0?'⚠':''}`:`HEX (${col},${row}) · ???`;
+
+  const popup=document.getElementById('hex-popup');
+  if(cell?.explored&&(cell.biome==='city'||cell.biome==='safe')){
+    popup.style.display='block';
+    popup.style.left=(sx+14)+'px';popup.style.top=(sy-10)+'px';
+    popup.innerHTML=`
+      <div class="hp-name">${cell.biome==='city'?'🏙 '+cell.name:'🛡 Vùng An Toàn'}</div>
+      <div class="hp-biome">${bm.lbl}</div>
+      ${cell.biome==='city'?`
+        <div class="hp-row"><span>Hoạt động</span><span class="hp-v">${cell.activity}%</span></div>
+        <div class="hp-row"><span>Cấp độ</span><span class="hp-v" style="color:var(--yellow)">Thị Trấn</span></div>
+        <div class="hp-row"><span>PvP</span><span class="hp-v" style="color:var(--red)">Tắt trong thành</span></div>
+      `:`<div class="hp-row"><span>PvP</span><span class="hp-v" style="color:var(--green)">Tắt</span></div>`}`;
+  } else popup.style.display='none';
+
+  renderMap();
+}
+
+function onMapClick(e){
+  if(G.dragging||G.inCombat||G.moving)return;
+  const rect=canvas.getBoundingClientRect();
+  const {col,row}=screenToHex(e.clientX-rect.left,e.clientY-rect.top);
+  if(col===G.player.x&&row===G.player.y)return;
+  const cell=G.hexData[row]?.[col];
+  if(!cell||cell.biome==='water'){showToast('🌊 Không thể đi trên nước!','warn');return;}
+  const dist=Math.max(Math.abs(col-G.player.x),Math.abs(row-G.player.y));
+  if(dist>10){showToast('Quá xa! Click gần hơn (max 10 hex)','warn');return;}
+  moveTo(col,row,dist,cell);
+}
+
+/* ══════════ MOVEMENT ══════════ */
+function moveTo(col,row,dist,cell){
+  G.moving=true;G.targetHex={col,row};
+  const t=Math.max(2,dist*3);
+  const ind=document.getElementById('move-indicator');
+  const te=document.getElementById('move-time');
+  ind.style.opacity='1';te.textContent=t;
+  addChat('system','⚙ SYS',`Di chuyển → HEX (${col},${row}) ETA: ${t}s`);
+  renderMap();
+  let left=t;
+  const tmr=setInterval(()=>{
+    left--;te.textContent=left;
+    if(left<=0){clearInterval(tmr);arrive(col,row,cell);}
+  },1000);
+}
+
+function arrive(col,row,cell){
+  G.player.x=col;G.player.y=row;
+  G.targetHex=null;G.moving=false;
+  revealAround(row,col,5);
+  centerOnPlayer();renderMap();
+  document.getElementById('move-indicator').style.opacity='0';
+  const bm=BIOMES[cell.biome];
+  addChat('system','⚙ SYS',`Đến ${bm.lbl} HEX (${col},${row})`);
+  if(cell.biome==='city'){
+    showToast(`🏙 Chào mừng đến ${cell.name}!`,'success');
+    addChat('local','📢',''+G.player.name+' đã đến '+cell.name);
+  }
+  // Encounter
+  const danger=bm.danger*(1+(100-G.player.luck)/200);
+  if(Math.random()<danger)setTimeout(()=>triggerEncounter(cell.biome),700);
+  updateHUD();
+}
+
+/* ══════════ COMBAT ══════════ */
+function triggerEncounter(){
+  if(G.inCombat)return;
+  const flash=document.getElementById('encounter-flash');
+  flash.classList.add('show');setTimeout(()=>flash.classList.remove('show'),500);
+  const e={...ENEMIES[Math.floor(Math.random()*ENEMIES.length)]};
+  e.hp=e.maxHp;
+  G.inCombat=true;G.combatState={enemy:e,answered:false};
+  showToast(`⚠ Bị tấn công bởi ${e.name}!`,'danger');
+  addChat('combat','⚔',`${G.player.name} bị ${e.name} tấn công!`);
+  document.getElementById('c-icon').textContent=e.icon;
+  document.getElementById('c-name').textContent=e.name;
+  document.getElementById('c-log').innerHTML='';
+  updateCombatUI();
+  loadQuestion();
+  document.getElementById('combat-modal').classList.add('show');
+}
+
+function updateCombatUI(){
+  const e=G.combatState.enemy;
+  const pct=Math.max(0,e.hp/e.maxHp*100);
+  document.getElementById('c-hp').textContent=`HP: ${e.hp} / ${e.maxHp}`;
+  document.getElementById('c-hpfill').style.width=pct+'%';
+}
+
+function loadQuestion(){
+  const q=QS[Math.floor(Math.random()*QS.length)];
+  G.combatState.q=q;G.combatState.answered=false;
+  document.getElementById('c-q').textContent=q.q;
+  const answers=[q.a,...q.w.slice(0,3)].sort(()=>Math.random()-.5);
+  const ct=document.getElementById('c-answers');ct.innerHTML='';
+  answers.forEach(a=>{
+    const btn=document.createElement('button');
+    btn.className='answer-btn';btn.textContent=a;
+    btn.onclick=()=>answer(btn,a,q.a);
+    ct.appendChild(btn);
+  });
+}
+
+function answer(btn,sel,correct){
+  if(G.combatState.answered)return;
+  G.combatState.answered=true;
+  document.querySelectorAll('.answer-btn').forEach(b=>{if(b.textContent===correct)b.classList.add('correct');});
+  if(sel===correct){
+    btn.classList.add('correct');
+    const dmg=G.player.atk+Math.floor(Math.random()*20);
+    G.combatState.enemy.hp=Math.max(0,G.combatState.enemy.hp-dmg);
+    cLog(`✅ Đúng! Gây ${dmg} sát thương`);showToast(`✅ Đúng! -${dmg}HP`,'success');
+    updateCombatUI();
+    if(G.combatState.enemy.hp<=0){setTimeout(winCombat,900);return;}
+    setTimeout(()=>{
+      const edm=Math.max(4,Math.floor(Math.random()*18)-Math.floor(G.player.def/4));
+      G.player.hp=Math.max(1,G.player.hp-edm);
+      cLog(`🔴 ${G.combatState.enemy.name} phản công -${edm}HP`);
+      updateHUD();loadQuestion();
+    },1000);
+  } else {
+    btn.classList.add('wrong');
+    const dmg=Math.max(5,Math.floor(Math.random()*22)-Math.floor(G.player.def/4));
+    G.player.hp=Math.max(1,G.player.hp-dmg);
+    cLog(`❌ Sai! Mất ${dmg} HP`);showToast(`❌ Sai! -${dmg}HP`,'danger');
+    updateHUD();setTimeout(loadQuestion,900);
+  }
+}
+
+function winCombat(){
+  const e=G.combatState.enemy;
+  cLog(`🏆 Chiến thắng! +${e.xp}XP +${e.coin}💰`);
+  G.player.xp=Math.min(100,G.player.xp+Math.floor(e.xp/100));
+  G.player.coin+=e.coin;G.player.wins++;
+  showToast(`🏆 Thắng! +${e.xp}XP +${e.coin}💰`,'success');
+  addChat('combat','⚔',`${G.player.name} hạ ${e.name}! +${e.xp}XP`);
+  updateHUD();
+  setTimeout(()=>{closeModal('combat-modal');G.inCombat=false;},1200);
+}
+
+function runAway(){
+  const ok=Math.random()<.3+G.player.spd/200;
+  if(ok){cLog('💨 Chạy thoát!');showToast('💨 Đã thoát!','info');
+    setTimeout(()=>{closeModal('combat-modal');G.inCombat=false;},700);}
+  else{
+    const d=Math.max(5,Math.floor(Math.random()*15));
+    G.player.hp=Math.max(1,G.player.hp-d);
+    cLog(`❌ Chạy thất bại! -${d}HP`);updateHUD();
+  }
+}
+
+function useItem(){
+  const h=20+Math.floor(Math.random()*15);
+  G.player.hp=Math.min(G.player.maxHp,G.player.hp+h);
+  cLog(`🧪 Bình Máu +${h}HP`);showToast(`🧪 +${h}HP`,'success');updateHUD();
+}
+
+function cLog(t){
+  const l=document.getElementById('c-log');
+  l.innerHTML+=t+'<br>';l.scrollTop=l.scrollHeight;
+}
+
+/* ══════════ HUD ══════════ */
+function updateHUD(){
+  const p=G.player;
+  document.getElementById('bar-hp').style.width=(p.hp/p.maxHp*100)+'%';
+  document.getElementById('bar-mp').style.width=(p.mp/p.maxMp*100)+'%';
+  document.getElementById('bar-xp').style.width=p.xp+'%';
+  document.getElementById('lbl-hp').textContent=p.hp;
+  document.getElementById('lbl-mp').textContent=p.mp;
+  document.getElementById('stat-coin').textContent=p.coin.toLocaleString();
+  document.getElementById('inv-coin').textContent=p.coin.toLocaleString();
+  document.getElementById('sm-coin').textContent=p.coin.toLocaleString();
+  document.getElementById('sm-wins').textContent=p.wins;
+  document.getElementById('sm-explore').textContent=p.explored;
+  syncAdmin();
+}
+
+/* ══════════ CHAT ══════════ */
+function addChat(type,name,text){
+  const list=document.getElementById('chat-list');
+  const d=document.createElement('div');d.className=`chat-msg ${type}`;
+  const now=new Date();
+  const t=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  d.innerHTML=`<span class="cn">${name}</span><span class="ct">[${t}]</span> ${text}`;
+  list.appendChild(d);
+  const v=document.getElementById('rpv-chat');v.scrollTop=v.scrollHeight;
+  G.chatMsgs.push({type,name,text,t});
+}
+
+function sendChat(){
+  const i=document.getElementById('chat-input');
+  const t=i.value.trim();if(!t)return;
+  addChat('local',G.player.name,t);i.value='';
+}
+
+function startAutoChat(){
+  const msgs=[
+    ['local','AquaMarine','ai có party không? mình đang ở rừng bắc'],
+    ['trade','TraderKing','WTS Kiếm Đồng 250coin @Bắc Môn'],
+    ['combat','SunFlare','Boss Rồng còn 30%HP!! Hex (23,41)'],
+    ['system','⚙ SYS','Hex (33,20) tiến hóa: Làng→Thị Trấn 🏙'],
+    ['local','MoonShadow','vừa lên LV 20 😭 khó vãi'],
+    ['trade','GoldRush','WTB Sách Tri Thức x3 pm giá'],
+    ['system','⚙ SYS','Boss tuần xuất hiện tại Hex (55,8)! 💀'],
+    ['combat','FireStorm99','guild StormBreaker cần thêm thành viên!'],
+  ];
+  let i=0;
+  setInterval(()=>{const m=msgs[i%msgs.length];addChat(m[0],m[1],m[2]);i++;},7000);
+}
+
+function initNearby(){
+  const players=[
+    {name:'AquaMarine',icon:'🌊',lv:18,dist:'2 hex',guild:'TidalWave',bg:'linear-gradient(135deg,#0066ff,#00d4ff)'},
+    {name:'SunFlare',icon:'☀️',lv:15,dist:'3 hex',guild:'SolarKings',bg:'linear-gradient(135deg,#ff8800,#ffd700)'},
+    {name:'GoldRush',icon:'💰',lv:9,dist:'4 hex',guild:'—',bg:'linear-gradient(135deg,#b8860b,#ffd700)'},
+    {name:'MoonShadow',icon:'🌙',lv:22,dist:'5 hex',guild:'—',bg:'linear-gradient(135deg,#4b0082,#9400d3)'},
+  ];
+  const list=document.getElementById('near-list');
+  players.forEach(p=>{
+    const d=document.createElement('div');d.className='near-item';
+    d.innerHTML=`
+      <div class="near-av" style="background:${p.bg}">${p.icon}</div>
+      <div style="flex:1">
+        <div class="near-name">${p.name}</div>
+        <div class="near-lvl">LV ${p.lv} · ${p.guild}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:9px;color:var(--yellow)">📍 ${p.dist}</div>
+        <div style="display:flex;gap:4px;margin-top:3px;justify-content:flex-end">
+          <span style="cursor:pointer;font-size:12px" title="Giao dịch" onclick="showToast('🤝 Giao dịch với ${p.name}','info')">🤝</span>
+          <span style="cursor:pointer;font-size:12px" title="Tấn công" onclick="showToast('⚔ Không thể tấn công trong Safe Zone','warn')">⚔</span>
+        </div>
+      </div>`;
+    list.appendChild(d);
+  });
+}
+
+/* ══════════ INVENTORY ══════════ */
+function renderInvGrid(filter){
+  const grid=document.getElementById('inv-grid');grid.innerHTML='';
+  const items=filter==='all'?ITEMS:ITEMS.filter(i=>i.type===filter);
+  for(let i=0;i<40;i++){
+    const s=document.createElement('div');s.className='inv-slot';
+    if(i<items.length){
+      const it=items[i];
+      s.innerHTML=`${it.icon}<span class="qty">${it.qty>1?it.qty:''}</span>`;
+      s.title=it.name;
+      s.onclick=()=>showToast(`📦 ${it.icon} ${it.name}`,'info');
+    } else s.classList.add('empty');
+    grid.appendChild(s);
+  }
+}
+
+function filterInv(btn,type){
+  document.querySelectorAll('.inv-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');renderInvGrid(type);
+}
+
+/* ══════════ UI ══════════ */
+function openInventory(){
+  document.getElementById('inv-sub').textContent=`${G.player.name} · LV ${G.player.level} · 20/40 slot`;
+  renderInvGrid('all');
+  document.getElementById('inv-modal').classList.add('show');
+  document.getElementById('btn-inv').classList.add('on');
+}
+
+function openStats(){
+  document.getElementById('sm-name').textContent=G.player.name;
+  document.getElementById('stats-modal').classList.add('show');
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('show');
+  if(id==='inv-modal')document.getElementById('btn-inv').classList.remove('on');
+  if(id==='combat-modal')G.inCombat=false;
+}
+
+function toggleRight(){
+  G.rightOpen=!G.rightOpen;
+  document.getElementById('right-panel').classList.toggle('hidden',!G.rightOpen);
+  document.getElementById('btn-chat').classList.toggle('on',G.rightOpen);
+  setTimeout(renderMap,260);
+}
+
+function openRight(tab){
+  G.rightOpen=true;
+  document.getElementById('right-panel').classList.remove('hidden');
+  document.getElementById('btn-chat').classList.add('on');
+  ['chat','near','quest'].forEach(t=>{
+    document.getElementById('rtab-'+t).classList.toggle('on',t===tab);
+    document.getElementById('rpv-'+t).classList.toggle('on',t===tab);
+  });
+}
+
+function setView(v,el){
+  document.querySelectorAll('#left-panel .lbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  G.view=v;
+  if(v==='world'){centerOnPlayer();renderMap();}
+  showToast(v==='world'?'🌍 World Map':'🏘 Local Map','info');
+}
+
+function showToast(msg,type='info'){
+  const w=document.getElementById('toast-wrap');
+  const d=document.createElement('div');d.className=`toast ${type}`;d.textContent=msg;
+  w.appendChild(d);setTimeout(()=>d.remove(),3200);
+}
+
+function logout(){if(confirm('Thoát game?')){document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';}}
+
+/* ══════════ ADMIN SYNC ══════════ */
+function syncAdmin(){
+  try{
+    localStorage.setItem('nexus_game_data',JSON.stringify({
+      online:247+Math.floor(Math.random()*8-4),
+      player:{name:G.player.name,hp:G.player.hp,coin:G.player.coin,x:G.player.x,y:G.player.y},
+      chat:G.chatMsgs.slice(-30),
+      timestamp:Date.now()
+    }));
+  }catch(e){}
+}
+
+function checkAdminCmds(){
+  try{
+    const raw=localStorage.getItem('nexus_admin_cmd');if(!raw)return;
+    const cmd=JSON.parse(raw);
+    if(Date.now()-cmd.timestamp<5000){
+      if(cmd.type==='teleport'){G.player.x=cmd.x;G.player.y=cmd.y;centerOnPlayer();renderMap();showToast(`🌀 Admin teleport → (${cmd.x},${cmd.y})`,'warn');}
+      if(cmd.type==='spawn_boss')triggerEncounter('forest');
+      if(cmd.type==='give_coin'){G.player.coin+=cmd.amount;showToast(`💰 Admin tặng ${cmd.amount} coin!`,'success');updateHUD();}
+      localStorage.removeItem('nexus_admin_cmd');
+    }
+  }catch(e){}
+}
+
+function markAdminLink(){
+  // store player data so admin can read it
+  localStorage.setItem('nexus_from_game','1');
+}
+
+setInterval(checkAdminCmds,2000);
+setInterval(syncAdmin,5000);
+
+/* ══════════ LOGIN ══════════ */
+function loginDiscord(){
+  const btn=document.querySelector('.login-btn-discord');
+  btn.innerHTML='⏳ Đang kết nối Discord...';
+  setTimeout(()=>startGame('DiscordPlayer'),1500);
+}
+function loginGuest(){
+  const ns=['Wanderer','Ranger','Explorer','Pilgrim','Nomad'];
+  startGame(ns[Math.floor(Math.random()*ns.length)]+Math.floor(Math.random()*999));
+}
+function startGame(name){
+  G.player.name=name;
+  document.getElementById('pname-display').textContent=name;
+  document.getElementById('plvl-display').textContent=`LV ${G.player.level} · ${G.player.class}`;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  genMap();initCanvas();renderMap();
+  addChat('system','⚙ SYS','Chào mừng đến NexusWorld! Hãy click vào hex để di chuyển.');
+  addChat('local','AquaMarine','Chào mừng bạn mới! 👋');
+  addChat('trade','TraderKing','WTS: Kiếm Đồng 250c @Bắc Môn');
+  initNearby();startAutoChat();updateHUD();
+  showToast(`⚔ Chào ${name}! Click hex để di chuyển.`,'success');
+  document.addEventListener('keydown',e=>{
+    if(document.activeElement===document.getElementById('chat-input'))return;
+    if(e.key==='i'||e.key==='I')openInventory();
+    if(e.key==='c'||e.key==='C')toggleRight();
+    if(e.key==='m'||e.key==='M'){centerOnPlayer();renderMap();}
+    if(e.key==='Escape')['inv-modal','combat-modal','stats-modal'].forEach(closeModal);
+  });
+  (()=>{const p=new URLSearchParams(window.location.search);if(p.get('from')==='admin')showToast('⚙ Mở từ Admin Panel','info');})();
+}
+</script>
+</body>
+</html>

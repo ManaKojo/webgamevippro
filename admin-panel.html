@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔ ADMIN NEXUS — Game Control Panel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap');
+
+:root {
+  --bg: #06080f;
+  --surface: #0c1120;
+  --surface2: #111827;
+  --border: #1e2d4a;
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #7c3aed;
+  --green: #00ff88;
+  --red: #ff3355;
+  --yellow: #ffd700;
+  --text: #c8d8f0;
+  --text-dim: #4a6080;
+  --glow: 0 0 20px rgba(0,212,255,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid noise background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* HEADER */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6,8,15,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  text-shadow: var(--glow);
+  letter-spacing: 2px;
+}
+
+.logo span { color: var(--accent2); }
+
+.header-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.hstat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.hstat .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+.dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot-yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+.dot-red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.4; }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.role-badge {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.god-btn {
+  background: linear-gradient(135deg, #ff3355, #ff6b35);
+  border: none;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.god-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,51,85,0.5); }
+
+/* LAYOUT */
+.layout {
+  display: flex;
+  position: relative;
+  z-index: 1;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  min-height: calc(100vh - 56px);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.nav-section {
+  padding: 0 12px 16px;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0 8px 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  background: rgba(0,212,255,0.05);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.nav-item.active {
+  background: rgba(0,212,255,0.1);
+  color: var(--accent);
+  border-color: rgba(0,212,255,0.3);
+}
+
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.nav-badge.green { background: var(--green); color: #000; }
+
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 24px;
+  min-height: calc(100vh - 56px);
+}
+
+/* PAGE */
+.page { display: none; }
+.page.active { display: block; }
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* CARDS */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.stat-card.blue::before { background: linear-gradient(90deg, var(--accent), transparent); }
+.stat-card.orange::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+.stat-card.purple::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+.stat-card.green::before { background: linear-gradient(90deg, var(--green), transparent); }
+.stat-card.red::before { background: linear-gradient(90deg, var(--red), transparent); }
+
+.stat-card:hover { border-color: rgba(0,212,255,0.3); }
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Share Tech Mono', monospace;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-value.blue { color: var(--accent); }
+.stat-value.orange { color: var(--accent2); }
+.stat-value.purple { color: var(--accent3); }
+.stat-value.green { color: var(--green); }
+.stat-value.red { color: var(--red); }
+
+.stat-change {
+  font-size: 12px;
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.stat-change.neg { color: var(--red); }
+
+.stat-icon {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  font-size: 28px;
+  opacity: 0.15;
+}
+
+/* PANEL */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.panel-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.02);
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-body { padding: 20px; }
+
+/* CHART */
+.chart-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 80px;
+  padding: 0 4px;
+}
+
+.bar {
+  flex: 1;
+  background: var(--border);
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-height: 4px;
+}
+
+.bar:hover { background: var(--accent); }
+.bar.active { background: var(--accent); }
+
+.chart-labels {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 0 4px;
+}
+
+.chart-label {
+  flex: 1;
+  text-align: center;
+  font-size: 9px;
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(30,45,74,0.5);
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(0,212,255,0.03); }
+
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.tag-forest { background: rgba(0,255,136,0.15); color: var(--green); }
+.tag-desert { background: rgba(255,215,0,0.15); color: var(--yellow); }
+.tag-mountain { background: rgba(124,58,237,0.15); color: #a78bfa; }
+.tag-plain { background: rgba(0,212,255,0.15); color: var(--accent); }
+.tag-swamp { background: rgba(255,107,53,0.15); color: var(--accent2); }
+.tag-active { background: rgba(0,255,136,0.15); color: var(--green); }
+.tag-inactive { background: rgba(74,96,128,0.3); color: var(--text-dim); }
+.tag-boss { background: rgba(255,51,85,0.15); color: var(--red); }
+
+/* FORM ELEMENTS */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-full { grid-column: 1 / -1; }
+
+label {
+  display: block;
+  font-size: 11px;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+input, select, textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+}
+
+textarea { resize: vertical; min-height: 80px; }
+
+select option { background: var(--surface2); }
+
+/* RANGE */
+.range-wrap { position: relative; }
+input[type=range] {
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.range-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* TOGGLE */
+.toggle-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toggle-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toggle-btn.on { background: rgba(0,212,255,0.15); border-color: var(--accent); color: var(--accent); }
+.toggle-btn.danger.on { background: rgba(255,51,85,0.15); border-color: var(--red); color: var(--red); }
+.toggle-btn.success.on { background: rgba(0,255,136,0.15); border-color: var(--green); color: var(--green); }
+.toggle-btn.warn.on { background: rgba(255,215,0,0.15); border-color: var(--yellow); color: var(--yellow); }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-primary:hover { background: #33ddff; box-shadow: var(--glow); }
+
+.btn-danger {
+  background: var(--red);
+  color: #fff;
+}
+.btn-danger:hover { box-shadow: 0 0 20px rgba(255,51,85,0.4); }
+
+.btn-success {
+  background: var(--green);
+  color: #000;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+/* MAP EDITOR */
+.hex-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.hex-row {
+  display: flex;
+  gap: 2px;
+}
+
+.hex-row:nth-child(even) { margin-left: 14px; }
+
+.hex {
+  width: 24px;
+  height: 28px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  cursor: pointer;
+  transition: all 0.1s;
+  position: relative;
+}
+
+.hex:hover { filter: brightness(1.5) saturate(1.5); transform: scale(1.15); }
+
+.hex.forest { background: #1a3d20; }
+.hex.plain { background: #3d4a1a; }
+.hex.mountain { background: #2d2d3d; }
+.hex.desert { background: #4a3d1a; }
+.hex.swamp { background: #1a2d2d; }
+.hex.safe { background: #1a3d3d; }
+.hex.water { background: #0d2233; }
+.hex.city { background: #3d1a3d; }
+
+.hex.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.map-tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.biome-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s;
+  background: var(--surface2);
+  color: var(--text-dim);
+}
+
+.biome-btn:hover { border-color: var(--border); color: var(--text); }
+.biome-btn.selected { border-color: var(--accent); color: var(--accent); }
+
+.biome-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* QUEST BUILDER */
+.quest-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 200px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 8px;
+  border: 2px dashed var(--border);
+}
+
+.quest-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: grab;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+
+.quest-block:hover { border-color: var(--accent); }
+.quest-block .block-icon { font-size: 18px; }
+.quest-block .block-label { flex: 1; }
+.quest-block .block-remove { color: var(--text-dim); cursor: pointer; }
+.quest-block .block-remove:hover { color: var(--red); }
+
+.block-palette {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.palette-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.palette-block:hover { border-color: var(--accent); color: var(--accent); }
+
+/* CSV UPLOAD */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg);
+}
+
+.upload-zone:hover {
+  border-color: var(--accent);
+  background: rgba(0,212,255,0.03);
+}
+
+.upload-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+.upload-text { font-size: 14px; color: var(--text-dim); }
+.upload-text strong { color: var(--accent); }
+
+/* LEADERBOARD */
+.lb-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(30,45,74,0.5);
+  transition: background 0.15s;
+}
+
+.lb-item:hover { background: rgba(0,212,255,0.03); }
+.lb-item:last-child { border-bottom: none; }
+
+.lb-rank {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  width: 28px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.lb-rank.gold { color: var(--yellow); }
+.lb-rank.silver { color: #94a3b8; }
+.lb-rank.bronze { color: #cd7c2f; }
+
+.lb-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent3), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.lb-name { flex: 1; font-weight: 600; font-size: 13px; }
+.lb-guild { font-size: 11px; color: var(--text-dim); }
+.lb-score { font-family: 'Share Tech Mono', monospace; color: var(--accent); font-size: 13px; }
+
+/* ACTIVITY LOG */
+.log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(30,45,74,0.3);
+  font-size: 12px;
+}
+
+.log-item:last-child { border-bottom: none; }
+.log-time { font-family: 'Share Tech Mono', monospace; color: var(--text-dim); white-space: nowrap; }
+.log-icon { flex-shrink: 0; }
+.log-text { color: var(--text-dim); }
+.log-text strong { color: var(--text); }
+.log-text .accent { color: var(--accent); }
+.log-text .danger { color: var(--red); }
+.log-text .success { color: var(--green); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .sidebar { width: 180px; }
+}
+
+@media (max-width: 640px) {
+  .sidebar { display: none; }
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* PROGRESS */
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* BOSS CARD */
+.boss-card {
+  background: linear-gradient(135deg, rgba(255,51,85,0.1), rgba(255,107,53,0.05));
+  border: 1px solid rgba(255,51,85,0.3);
+  border-radius: 10px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.boss-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(255,51,85,0.1), transparent 60%);
+}
+
+.boss-name { font-size: 16px; font-weight: 900; color: var(--red); }
+.boss-hp { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+.hp-bar { height: 6px; background: rgba(255,51,85,0.2); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+.hp-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--accent2)); border-radius: 3px; }
+
+/* NOTIFICATION */
+.notif {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.notif-info { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); }
+.notif-warn { background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); color: var(--yellow); }
+.notif-danger { background: rgba(255,51,85,0.1); border: 1px solid rgba(255,51,85,0.3); color: var(--red); }
+
+/* TOOLTIP */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.chip-blue { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+.chip-red { background: rgba(255,51,85,0.1); color: var(--red); border: 1px solid rgba(255,51,85,0.2); }
+.chip-green { background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid rgba(0,255,136,0.2); }
+.chip-yellow { background: rgba(255,215,0,0.1); color: var(--yellow); border: 1px solid rgba(255,215,0,0.2); }
+
+/* GOD MODE OVERLAY */
+.god-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+}
+
+.god-overlay.show { display: flex; }
+
+.god-modal {
+  background: var(--surface);
+  border: 1px solid rgba(255,51,85,0.5);
+  border-radius: 12px;
+  padding: 32px;
+  width: 560px;
+  max-width: 90vw;
+  box-shadow: 0 0 60px rgba(255,51,85,0.2);
+}
+
+.god-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.god-warn {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.god-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.god-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s;
+  color: var(--text);
+}
+
+.god-action:hover { border-color: var(--red); color: var(--red); background: rgba(255,51,85,0.05); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">⚔ ADMIN<span>NEXUS</span></div>
+  <div class="header-stats">
+    <div class="hstat"><div class="dot dot-green"></div> <span style="color:var(--green)">247</span> Online</div>
+    <div class="hstat"><div class="dot dot-yellow"></div> <span style="color:var(--yellow)">3</span> Boss Alive</div>
+    <div class="hstat"><div class="dot dot-red"></div> <span style="color:var(--red)">12</span> Raids</div>
+  </div>
+  <div class="header-right">
+    <span class="role-badge">⚡ ADMIN</span>
+    <a href="game.html" target="_blank" style="display:flex;align-items:center;gap:5px;padding:0 10px;height:32px;border-radius:6px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.08);color:#00d4ff;font-size:11px;font-weight:700;text-decoration:none;margin-right:4px">🎮 Game ↗</a><button class="god-btn" onclick="document.getElementById('godOverlay').classList.add('show')">☠ GOD MODE</button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Main</div>
+      <div class="nav-item active" onclick="switchPage('dashboard', this)">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="switchPage('map', this)">
+        <span class="nav-icon">🗺</span> Map Editor
+      </div>
+      <div class="nav-item" onclick="switchPage('npc', this)">
+        <span class="nav-icon">🧭</span> NPC & Quest
+      </div>
+      <div class="nav-item" onclick="switchPage('enemy', this)">
+        <span class="nav-icon">👹</span> Enemy & Boss <span class="nav-badge">3</span>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Economy</div>
+      <div class="nav-item" onclick="switchPage('shop', this)">
+        <span class="nav-icon">🏪</span> Shop System
+      </div>
+      <div class="nav-item" onclick="switchPage('questions', this)">
+        <span class="nav-icon">📚</span> Questions <span class="nav-badge green">2.4k</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('events', this)">
+        <span class="nav-icon">🎉</span> Events
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">System</div>
+      <div class="nav-item" onclick="switchPage('leaderboard', this)">
+        <span class="nav-icon">🏆</span> Leaderboard
+      </div>
+      <div class="nav-item" onclick="switchPage('language', this)">
+        <span class="nav-icon">🌐</span> Language
+      </div>
+      <div class="nav-item" onclick="switchPage('roles', this)">
+        <span class="nav-icon">🔐</span> Roles
+      </div>
+      <div class="nav-item" onclick="switchPage('logs', this)">
+        <span class="nav-icon">📜</span> Logs
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle">Tổng quan hệ thống realtime</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm">📊 Export</button>
+          <button class="btn btn-primary btn-sm" onclick="refreshStats()">⟳ Refresh</button>
+        </div>
+      </div>
+
+      <div class="grid-4">
+        <div class="stat-card blue">
+          <div class="stat-icon">👥</div>
+          <div class="stat-label">Players Online</div>
+          <div class="stat-value blue" id="stat-online">247</div>
+          <div class="stat-change">↑ +23 giờ qua</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">🏙</div>
+          <div class="stat-label">Thành phố</div>
+          <div class="stat-value green">18</div>
+          <div class="stat-change">↑ +2 hôm nay</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Giao dịch hôm nay</div>
+          <div class="stat-value orange">1,204</div>
+          <div class="stat-change">↑ +15%</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">⚔</div>
+          <div class="stat-label">Boss Alive</div>
+          <div class="stat-value red">3</div>
+          <div class="stat-change neg">Đang chiến đấu</div>
+        </div>
+      </div>
+
+      <!-- Charts + Bosses -->
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📈 Player Online (7 ngày)</div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-bar" id="chart1">
+              <div class="bar" style="height:45%" title="Mon"></div>
+              <div class="bar" style="height:62%" title="Tue"></div>
+              <div class="bar" style="height:38%" title="Wed"></div>
+              <div class="bar" style="height:72%" title="Thu"></div>
+              <div class="bar" style="height:58%" title="Fri"></div>
+              <div class="bar" style="height:90%" title="Sat"></div>
+              <div class="bar active" style="height:75%" title="Sun"></div>
+            </div>
+            <div class="chart-labels">
+              <div class="chart-label">T2</div>
+              <div class="chart-label">T3</div>
+              <div class="chart-label">T4</div>
+              <div class="chart-label">T5</div>
+              <div class="chart-label">T6</div>
+              <div class="chart-label">T7</div>
+              <div class="chart-label">CN</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">💰 Trade Volume (7 ngày)</div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-bar">
+              <div class="bar" style="height:30%;background:rgba(255,107,53,0.4)"></div>
+              <div class="bar" style="height:55%;background:rgba(255,107,53,0.4)"></div>
+              <div class="bar" style="height:42%;background:rgba(255,107,53,0.4)"></div>
+              <div class="bar" style="height:68%;background:rgba(255,107,53,0.4)"></div>
+              <div class="bar" style="height:75%;background:rgba(255,107,53,0.4)"></div>
+              <div class="bar" style="height:88%;background:rgba(255,107,53,0.6)"></div>
+              <div class="bar active" style="height:95%;background:var(--accent2)"></div>
+            </div>
+            <div class="chart-labels">
+              <div class="chart-label">T2</div>
+              <div class="chart-label">T3</div>
+              <div class="chart-label">T4</div>
+              <div class="chart-label">T5</div>
+              <div class="chart-label">T6</div>
+              <div class="chart-label">T7</div>
+              <div class="chart-label">CN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Bosses -->
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header">
+          <div class="panel-title">💀 Boss Đang Hoạt Động</div>
+          <button class="btn btn-danger btn-sm" onclick="switchPage('enemy', document.querySelector('[onclick*=enemy]'))">+ Tạo Boss</button>
+        </div>
+        <div class="panel-body">
+          <div class="grid-3">
+            <div class="boss-card">
+              <div class="boss-name">🐉 Rồng Núi Đen</div>
+              <div class="boss-hp">HP: 45,000 / 100,000</div>
+              <div class="hp-bar"><div class="hp-fill" style="width:45%"></div></div>
+              <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+                <span class="chip chip-yellow">⏱ 18:24 còn lại</span>
+                <span class="chip chip-red">Hex (23,41)</span>
+              </div>
+            </div>
+            <div class="boss-card">
+              <div class="boss-name">👁 Mắt Của Hư Không</div>
+              <div class="boss-hp">HP: 82,000 / 150,000</div>
+              <div class="hp-bar"><div class="hp-fill" style="width:55%"></div></div>
+              <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+                <span class="chip chip-yellow">⏱ 45:10 còn lại</span>
+                <span class="chip chip-red">Hex (7,15)</span>
+              </div>
+            </div>
+            <div class="boss-card">
+              <div class="boss-name">☠ Tử Thần Sa Mạc</div>
+              <div class="boss-hp">HP: 10,000 / 80,000</div>
+              <div class="hp-bar"><div class="hp-fill" style="width:12%"></div></div>
+              <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+                <span class="chip chip-green">Sắp chết</span>
+                <span class="chip chip-red">Hex (55,8)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">⚡ Hoạt động gần đây</div>
+          <button class="btn btn-ghost btn-sm" onclick="switchPage('logs', document.querySelector('[onclick*=logs]'))">Xem tất cả →</button>
+        </div>
+        <div class="panel-body">
+          <div class="log-item">
+            <span class="log-time">14:32</span>
+            <span class="log-icon">⚔</span>
+            <span class="log-text"><strong>NightWolf</strong> đã <span class="danger">raid</span> nhà của <strong>SunFlare</strong> tại Hex (12,45)</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">14:28</span>
+            <span class="log-icon">🏙</span>
+            <span class="log-text">Hex (33,20) đã tiến hóa: <span class="accent">Làng → Thị Trấn</span></span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">14:15</span>
+            <span class="log-icon">💀</span>
+            <span class="log-text"><strong>GuildStorm</strong> đã <span class="success">hạ gục Boss</span> Rồng Lửa tuần này</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">14:02</span>
+            <span class="log-icon">🚨</span>
+            <span class="log-text">Phát hiện <span class="danger">multi-account</span> từ IP 192.168.x.x — đã tự động khóa</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">13:55</span>
+            <span class="log-icon">💰</span>
+            <span class="log-text"><strong>TraderKing</strong> đã hoàn thành giao dịch <span class="accent">5,000 coin</span> với <strong>Merchant99</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP EDITOR -->
+    <div class="page" id="page-map">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🗺 Map Editor</div>
+          <div class="page-subtitle">Click hex để đổi biome — Click giữ để vẽ vùng</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm">🔧 Fix Pathing</button>
+          <button class="btn btn-ghost btn-sm">♻ Reset Chunk</button>
+          <button class="btn btn-primary btn-sm">✨ Auto Generate</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🖌 Biome Brush</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label style="margin:0;font-size:11px">Khu vực:</label>
+            <div class="toggle-group">
+              <div class="toggle-btn" onclick="toggleZone(this)">🛡 Safe Zone</div>
+              <div class="toggle-btn danger" onclick="toggleZone(this)">⚔ Combat Zone</div>
+              <div class="toggle-btn warn" onclick="toggleZone(this)">💰 Trade Zone</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="map-tools" id="biomeBrush">
+            <div class="biome-btn selected" onclick="selectBiome(this,'forest')">
+              <div class="biome-dot" style="background:#1a3d20"></div> 🌲 Rừng
+            </div>
+            <div class="biome-btn" onclick="selectBiome(this,'plain')">
+              <div class="biome-dot" style="background:#3d4a1a"></div> 🌿 Đồng bằng
+            </div>
+            <div class="biome-btn" onclick="selectBiome(this,'mountain')">
+              <div class="biome-dot" style="background:#2d2d3d"></div> ⛰ Núi
+            </div>
+            <div class="biome-btn" onclick="selectBiome(this,'desert')">
+              <div class="biome-dot" style="background:#4a3d1a"></div> 🏜 Sa mạc
+            </div>
+            <div class="biome-btn" onclick="selectBiome(this,'swamp')">
+              <div class="biome-dot" style="background:#1a2d2d"></div> 🌊 Đầm lầy
+            </div>
+            <div class="biome-btn" onclick="selectBiome(this,'safe')">
+              <div class="biome-dot" style="background:#1a3d3d"></div> 🛡 An toàn
+            </div>
+            <div class="biome-btn" onclick="selectBiome(this,'water')">
+              <div class="biome-dot" style="background:#0d2233"></div> 💧 Nước
+            </div>
+            <div class="biome-btn" onclick="selectBiome(this,'city')">
+              <div class="biome-dot" style="background:#3d1a3d"></div> 🏙 Thành phố
+            </div>
+          </div>
+          <div id="hexGrid" class="hex-grid"></div>
+          <div style="margin-top:12px;font-size:11px;color:var(--text-dim);font-family:'Share Tech Mono',monospace">
+            Click hex để thay đổi biome. Giữ chuột để vẽ vùng liên tục.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NPC & QUEST -->
+    <div class="page" id="page-npc">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🧭 NPC & Quest</div>
+          <div class="page-subtitle">Tạo NPC, Quest và dialogue không cần code</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Create NPC -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🧑 Tạo NPC mới</div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Tên NPC</label>
+              <input type="text" placeholder="vd: Lão Thương Nhân">
+            </div>
+            <div class="form-group">
+              <label>Ảnh đại diện (PNG)</label>
+              <div class="upload-zone" style="padding:20px">
+                <div class="upload-icon" style="font-size:28px;margin-bottom:6px">🖼</div>
+                <div class="upload-text">Click để upload sprite <strong>16×16</strong></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Toạ độ Hex</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <input type="number" placeholder="X: 23">
+                <input type="number" placeholder="Y: 41">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Loại NPC</label>
+              <div class="toggle-group">
+                <div class="toggle-btn on" onclick="this.classList.toggle('on')">📜 Quest</div>
+                <div class="toggle-btn" onclick="this.classList.toggle('on')">🛒 Shop</div>
+                <div class="toggle-btn" onclick="this.classList.toggle('on')">📖 Lore</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%">💾 Lưu NPC</button>
+          </div>
+        </div>
+
+        <!-- Quest Builder -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📜 Quest Builder — Kéo thả</div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Tên Quest</label>
+              <input type="text" placeholder="vd: Tìm hiểu bí ẩn hang động">
+            </div>
+            <label>Palette (click để thêm)</label>
+            <div class="block-palette">
+              <div class="palette-block" onclick="addQuestBlock('💬', 'Nói chuyện NPC')">💬 Nói chuyện NPC</div>
+              <div class="palette-block" onclick="addQuestBlock('🗺', 'Di chuyển tới Hex')">🗺 Di chuyển tới Hex</div>
+              <div class="palette-block" onclick="addQuestBlock('💀', 'Giết quái vật')">💀 Giết quái vật</div>
+              <div class="palette-block" onclick="addQuestBlock('📚', 'Trả lời câu hỏi')">📚 Trả lời câu hỏi</div>
+              <div class="palette-block" onclick="addQuestBlock('🎁', 'Nhận thưởng')">🎁 Nhận thưởng</div>
+              <div class="palette-block" onclick="addQuestBlock('🛒', 'Mua item từ shop')">🛒 Mua item từ shop</div>
+            </div>
+            <label>Các bước Quest</label>
+            <div class="quest-blocks" id="questBlocks">
+              <div style="text-align:center;color:var(--text-dim);font-size:13px;margin:auto;padding:20px">Click palette để thêm bước ↑</div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn btn-ghost" style="flex:1" onclick="clearQuest()">🗑 Xóa</button>
+              <button class="btn btn-primary" style="flex:2">💾 Lưu Quest</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENEMY & BOSS -->
+    <div class="page" id="page-enemy">
+      <div class="page-header">
+        <div>
+          <div class="page-title">👹 Enemy & Boss</div>
+          <div class="page-subtitle">Tạo kẻ địch và boss không cần code</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">👾 Tạo Enemy</div></div>
+          <div class="panel-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Tên kẻ địch</label>
+                <input type="text" placeholder="vd: Sói Ma">
+              </div>
+              <div class="form-group">
+                <label>HP</label>
+                <input type="number" placeholder="500">
+              </div>
+              <div class="form-group">
+                <label>Biome xuất hiện</label>
+                <select>
+                  <option>🌲 Rừng</option>
+                  <option>🌊 Đầm lầy</option>
+                  <option>⛰ Núi</option>
+                  <option>🏜 Sa mạc</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Độ khó câu hỏi</label>
+                <select>
+                  <option>⭐ Dễ</option>
+                  <option selected>⭐⭐ Trung bình</option>
+                  <option>⭐⭐⭐ Khó</option>
+                </select>
+              </div>
+              <div class="form-group form-full">
+                <label>Tỉ lệ spawn: <span id="spawnVal">25%</span></label>
+                <input type="range" min="1" max="100" value="25" oninput="document.getElementById('spawnVal').textContent=this.value+'%'">
+              </div>
+              <div class="form-group form-full">
+                <label>Drop item (cách nhau bởi dấu phẩy)</label>
+                <input type="text" placeholder="vd: Nanh Sói, Bùa Rừng, 50 coin">
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%">💾 Lưu Enemy</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">💀 Tạo Boss</div></div>
+          <div class="panel-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Tên Boss</label>
+                <input type="text" placeholder="vd: Rồng Núi Đen">
+              </div>
+              <div class="form-group">
+                <label>HP</label>
+                <input type="number" placeholder="100000">
+              </div>
+              <div class="form-group">
+                <label>Spawn tại Hex X</label>
+                <input type="number" placeholder="23">
+              </div>
+              <div class="form-group">
+                <label>Spawn tại Hex Y</label>
+                <input type="number" placeholder="41">
+              </div>
+              <div class="form-group form-full">
+                <label>Cơ chế đặc biệt</label>
+                <textarea placeholder="vd: Hồi máu 5% mỗi phút. Triệu hồi 3 lính khi HP < 30%"></textarea>
+              </div>
+              <div class="form-group form-full">
+                <label>Tùy chọn Boss</label>
+                <div class="toggle-group">
+                  <div class="toggle-btn on" onclick="this.classList.toggle('on')">📅 Boss tuần</div>
+                  <div class="toggle-btn" onclick="this.classList.toggle('on')">📢 Thông báo Discord</div>
+                  <div class="toggle-btn" onclick="this.classList.toggle('on')">🔄 Auto respawn</div>
+                  <div class="toggle-btn" onclick="this.classList.toggle('on')">⚡ Dynamic HP</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-danger" style="width:100%">⚡ Spawn Boss Ngay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHOP SYSTEM -->
+    <div class="page" id="page-shop">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🏪 Shop System</div>
+          <div class="page-subtitle">Tạo shop và quản lý vật phẩm</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">🛒 Tạo Shop mới</div></div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Tên Shop</label>
+              <input type="text" placeholder="vd: Tiệm Pháp Thuật Bắc Kinh">
+            </div>
+            <div class="form-group">
+              <label>Loại Shop</label>
+              <div class="toggle-group">
+                <div class="toggle-btn on" onclick="selectShopType(this)">🧑 NPC Shop</div>
+                <div class="toggle-btn" onclick="selectShopType(this)">🌍 Global Shop</div>
+                <div class="toggle-btn" onclick="selectShopType(this)">🎉 Event Shop</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Item trong Shop</label>
+              <table class="data-table">
+                <tr><th>Item</th><th>Giá</th><th>Giới hạn</th><th></th></tr>
+                <tr>
+                  <td>📚 Sách Tri Thức</td>
+                  <td><input type="number" style="width:70px;padding:4px 8px" value="100"></td>
+                  <td><input type="number" style="width:60px;padding:4px 8px" value="10"></td>
+                  <td><button class="btn btn-ghost btn-sm">✕</button></td>
+                </tr>
+                <tr>
+                  <td>🗡 Kiếm Đồng</td>
+                  <td><input type="number" style="width:70px;padding:4px 8px" value="250"></td>
+                  <td><input type="number" style="width:60px;padding:4px 8px" value="5"></td>
+                  <td><button class="btn btn-ghost btn-sm">✕</button></td>
+                </tr>
+              </table>
+              <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%">+ Thêm item</button>
+            </div>
+            <button class="btn btn-primary" style="width:100%">💾 Lưu Shop</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">💎 Gói Premium (Không Pay-to-Win)</div></div>
+          <div class="panel-body">
+            <div class="notif notif-info" style="margin-bottom:16px">
+              ℹ Premium chỉ bán cosmetic — không ảnh hưởng sức mạnh
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="boss-card" style="background:rgba(0,212,255,0.05);border-color:rgba(0,212,255,0.3)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="font-weight:700;color:var(--accent)">💎 Gói Nhỏ</div>
+                    <div style="font-size:12px;color:var(--text-dim)">500 Coin · Skin cơ bản</div>
+                  </div>
+                  <div style="font-size:18px;font-weight:900;color:var(--accent)">50k</div>
+                </div>
+              </div>
+              <div class="boss-card" style="background:rgba(255,215,0,0.05);border-color:rgba(255,215,0,0.3)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="font-weight:700;color:var(--yellow)">👑 Gói Vừa</div>
+                    <div style="font-size:12px;color:var(--text-dim)">1200 Coin · Skin hiếm + hiệu ứng</div>
+                  </div>
+                  <div style="font-size:18px;font-weight:900;color:var(--yellow)">100k</div>
+                </div>
+              </div>
+              <div class="boss-card" style="background:rgba(124,58,237,0.05);border-color:rgba(124,58,237,0.3)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="font-weight:700;color:#a78bfa">⚡ Gói Lớn</div>
+                    <div style="font-size:12px;color:var(--text-dim)">2600 Coin · Full cosmetic pack</div>
+                  </div>
+                  <div style="font-size:18px;font-weight:900;color:#a78bfa">200k</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="page" id="page-questions">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📚 Quản lý câu hỏi</div>
+          <div class="page-subtitle">2,412 câu hỏi · Tự động kiểm tra trùng</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">✏ Thêm câu hỏi mới</div></div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Câu hỏi</label>
+              <textarea placeholder="vd: Phương trình bậc hai ax² + bx + c = 0 có nghiệm khi..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Đáp án đúng</label>
+              <input type="text" placeholder="Đáp án chính xác">
+            </div>
+            <div class="form-group">
+              <label>Đáp án sai (tùy chọn, cách nhau bởi |)</label>
+              <input type="text" placeholder="Đáp án sai 1 | Đáp án sai 2 | Đáp án sai 3">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group">
+                <label>Chủ đề</label>
+                <select>
+                  <option>🔢 Toán học</option>
+                  <option>🔬 Khoa học</option>
+                  <option>📖 Văn học</option>
+                  <option>🌍 Địa lý</option>
+                  <option>🏛 Lịch sử</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Độ khó</label>
+                <select>
+                  <option>⭐ Dễ</option>
+                  <option selected>⭐⭐ Trung bình</option>
+                  <option>⭐⭐⭐ Khó</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%">💾 Thêm câu hỏi</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">📤 Import từ CSV</div></div>
+          <div class="panel-body">
+            <div class="upload-zone" style="margin-bottom:16px">
+              <div class="upload-icon">📊</div>
+              <div class="upload-text">Kéo thả file <strong>.CSV</strong> vào đây<br><br>hoặc click để chọn file</div>
+            </div>
+            <div class="notif notif-info">
+              📋 Format CSV: <code style="font-family:'Share Tech Mono',monospace;font-size:11px">câu_hỏi, đúng, sai1, sai2, chủ_đề, độ_khó</code>
+            </div>
+            <div style="margin-top:16px">
+              <div class="stat-label" style="margin-bottom:12px">Thống kê theo chủ đề</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                    <span>🔢 Toán học</span><span style="color:var(--accent)">842</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                    <span>🔬 Khoa học</span><span style="color:var(--green)">621</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:48%;background:var(--green)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                    <span>📖 Văn học</span><span style="color:var(--accent2)">445</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:34%;background:var(--accent2)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                    <span>🌍 Địa lý + Lịch sử</span><span style="color:var(--accent3)">504</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:39%;background:var(--accent3)"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="page" id="page-events">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🎉 Event System</div>
+          <div class="page-subtitle">Tạo và quản lý sự kiện game</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">⚡ Kích hoạt Event nhanh</div></div>
+          <div class="panel-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <button class="boss-card" style="cursor:pointer;text-align:center;background:rgba(255,51,85,0.08)" onclick="activateEvent(this,'Raid Weekend')">
+                <div style="font-size:24px">⚔</div>
+                <div style="font-weight:700;color:var(--red)">Raid Weekend</div>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Tăng cường raid</div>
+              </button>
+              <button class="boss-card" style="cursor:pointer;text-align:center;background:rgba(0,255,136,0.05);border-color:rgba(0,255,136,0.2)" onclick="activateEvent(this,'Double EXP')">
+                <div style="font-size:24px">⚡</div>
+                <div style="font-weight:700;color:var(--green)">Double EXP</div>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:4px">x2 kinh nghiệm</div>
+              </button>
+              <button class="boss-card" style="cursor:pointer;text-align:center;background:rgba(255,215,0,0.05);border-color:rgba(255,215,0,0.2)" onclick="activateEvent(this,'Double Drop')">
+                <div style="font-size:24px">💰</div>
+                <div style="font-weight:700;color:var(--yellow)">Double Drop</div>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:4px">x2 vật phẩm rơi</div>
+              </button>
+              <button class="boss-card" style="cursor:pointer;text-align:center;background:rgba(0,212,255,0.05);border-color:rgba(0,212,255,0.2)" onclick="activateEvent(this,'Boss Rush')">
+                <div style="font-size:24px">💀</div>
+                <div style="font-weight:700;color:var(--accent)">Boss Rush</div>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Nhiều boss xuất hiện</div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">🗓 Tạo Event tùy chỉnh</div></div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Tên Event</label>
+              <input type="text" placeholder="vd: Lễ hội Mùa Đông">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group">
+                <label>Bắt đầu</label>
+                <input type="datetime-local">
+              </div>
+              <div class="form-group">
+                <label>Kết thúc</label>
+                <input type="datetime-local">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Hiệu ứng</label>
+              <div class="toggle-group">
+                <div class="toggle-btn" onclick="this.classList.toggle('on')">⚡ x2 EXP</div>
+                <div class="toggle-btn" onclick="this.classList.toggle('on')">💰 x2 Drop</div>
+                <div class="toggle-btn" onclick="this.classList.toggle('on')">🛡 PvP</div>
+                <div class="toggle-btn" onclick="this.classList.toggle('on')">📢 Discord</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%">📅 Lên lịch Event</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="page" id="page-leaderboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🏆 Leaderboard</div>
+          <div class="page-subtitle">Dựa trên Discord ID</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">⚔ Top Level</div>
+          </div>
+          <div class="panel-body" style="padding:8px 16px">
+            <div class="lb-item">
+              <div class="lb-rank gold">👑</div>
+              <div class="lb-avatar">🐉</div>
+              <div><div class="lb-name">NightWolf</div><div class="lb-guild">Guild: StormBreaker</div></div>
+              <div class="lb-score">LV 99</div>
+            </div>
+            <div class="lb-item">
+              <div class="lb-rank silver">2</div>
+              <div class="lb-avatar">⚡</div>
+              <div><div class="lb-name">SunFlare</div><div class="lb-guild">Guild: SolarKings</div></div>
+              <div class="lb-score">LV 87</div>
+            </div>
+            <div class="lb-item">
+              <div class="lb-rank bronze">3</div>
+              <div class="lb-avatar">🌊</div>
+              <div><div class="lb-name">AquaMarine</div><div class="lb-guild">Guild: TidalWave</div></div>
+              <div class="lb-score">LV 84</div>
+            </div>
+            <div class="lb-item">
+              <div class="lb-rank" style="color:var(--text-dim)">4</div>
+              <div class="lb-avatar">🔥</div>
+              <div><div class="lb-name">FireStorm99</div><div class="lb-guild">Guild: StormBreaker</div></div>
+              <div class="lb-score">LV 79</div>
+            </div>
+            <div class="lb-item">
+              <div class="lb-rank" style="color:var(--text-dim)">5</div>
+              <div class="lb-avatar">🌙</div>
+              <div><div class="lb-name">MoonShadow</div><div class="lb-guild">Không guild</div></div>
+              <div class="lb-score">LV 73</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">💰 Top Trader</div>
+          </div>
+          <div class="panel-body" style="padding:8px 16px">
+            <div class="lb-item">
+              <div class="lb-rank gold">👑</div>
+              <div class="lb-avatar">💹</div>
+              <div><div class="lb-name">TraderKing</div><div class="lb-guild">1,204 giao dịch</div></div>
+              <div class="lb-score" style="color:var(--yellow)">45,200 coin</div>
+            </div>
+            <div class="lb-item">
+              <div class="lb-rank silver">2</div>
+              <div class="lb-avatar">💎</div>
+              <div><div class="lb-name">Merchant99</div><div class="lb-guild">892 giao dịch</div></div>
+              <div class="lb-score" style="color:var(--yellow)">38,100 coin</div>
+            </div>
+            <div class="lb-item">
+              <div class="lb-rank bronze">3</div>
+              <div class="lb-avatar">🏦</div>
+              <div><div class="lb-name">GoldRush</div><div class="lb-guild">654 giao dịch</div></div>
+              <div class="lb-score" style="color:var(--yellow)">29,500 coin</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANGUAGE -->
+    <div class="page" id="page-language">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🌐 Language Manager</div>
+          <div class="page-subtitle">Quản lý đa ngôn ngữ bằng JSON</div>
+        </div>
+        <button class="btn btn-primary btn-sm">+ Thêm ngôn ngữ</button>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">✏ Chỉnh sửa chuỗi văn bản</div></div>
+        <div class="panel-body">
+          <div style="display:flex;gap:10px;margin-bottom:16px">
+            <select style="width:auto">
+              <option>🇻🇳 Tiếng Việt</option>
+              <option>🇺🇸 English</option>
+            </select>
+            <button class="btn btn-ghost btn-sm">📤 Import JSON</button>
+            <button class="btn btn-ghost btn-sm">📥 Export JSON</button>
+          </div>
+          <table class="data-table">
+            <tr><th>Key</th><th>🇻🇳 Tiếng Việt</th><th>🇺🇸 English</th><th></th></tr>
+            <tr>
+              <td style="font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:12px">login</td>
+              <td><input type="text" value="Đăng nhập" style="padding:4px 8px"></td>
+              <td><input type="text" value="Login" style="padding:4px 8px"></td>
+              <td><button class="btn btn-ghost btn-sm">💾</button></td>
+            </tr>
+            <tr>
+              <td style="font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:12px">battle.win</td>
+              <td><input type="text" value="Chiến thắng!" style="padding:4px 8px"></td>
+              <td><input type="text" value="Victory!" style="padding:4px 8px"></td>
+              <td><button class="btn btn-ghost btn-sm">💾</button></td>
+            </tr>
+            <tr>
+              <td style="font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:12px">battle.lose</td>
+              <td><input type="text" value="Thất bại!" style="padding:4px 8px"></td>
+              <td><input type="text" value="Defeated!" style="padding:4px 8px"></td>
+              <td><button class="btn btn-ghost btn-sm">💾</button></td>
+            </tr>
+            <tr>
+              <td style="font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:12px">city.evolved</td>
+              <td><input type="text" value="Thành phố đã tiến hóa!" style="padding:4px 8px"></td>
+              <td><input type="text" value="City evolved!" style="padding:4px 8px"></td>
+              <td><button class="btn btn-ghost btn-sm">💾</button></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROLES -->
+    <div class="page" id="page-roles">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🔐 Role & Permissions</div>
+          <div class="page-subtitle">Phân quyền admin panel</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">👥 Phân quyền</div></div>
+        <div class="panel-body">
+          <table class="data-table">
+            <tr><th>Role</th><th>Map</th><th>Enemy</th><th>Economy</th><th>Questions</th><th>God Mode</th><th></th></tr>
+            <tr>
+              <td><span class="chip chip-red">⚡ Admin</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><button class="btn btn-ghost btn-sm">✏</button></td>
+            </tr>
+            <tr>
+              <td><span class="chip chip-yellow">🛡 Moderator</span></td>
+              <td><span style="color:var(--text-dim)">—</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><span style="color:var(--text-dim)">—</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><span style="color:var(--red)">✕</span></td>
+              <td><button class="btn btn-ghost btn-sm">✏</button></td>
+            </tr>
+            <tr>
+              <td><span class="chip chip-blue">🗺 Map Editor</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><span style="color:var(--text-dim)">—</span></td>
+              <td><span style="color:var(--text-dim)">—</span></td>
+              <td><span style="color:var(--text-dim)">—</span></td>
+              <td><span style="color:var(--red)">✕</span></td>
+              <td><button class="btn btn-ghost btn-sm">✏</button></td>
+            </tr>
+            <tr>
+              <td><span class="chip chip-green">📚 Question Manager</span></td>
+              <td><span style="color:var(--text-dim)">—</span></td>
+              <td><span style="color:var(--text-dim)">—</span></td>
+              <td><span style="color:var(--text-dim)">—</span></td>
+              <td><span style="color:var(--green)">✓</span></td>
+              <td><span style="color:var(--red)">✕</span></td>
+              <td><button class="btn btn-ghost btn-sm">✏</button></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="page" id="page-logs">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📜 Activity Logs</div>
+          <div class="page-subtitle">Lịch sử toàn bộ hoạt động trong game</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">📥 Export CSV</button>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🔍 Bộ lọc</div>
+          <div style="display:flex;gap:8px">
+            <select style="width:auto;padding:5px 10px;font-size:12px">
+              <option>Tất cả</option>
+              <option>⚔ Combat</option>
+              <option>💰 Trade</option>
+              <option>🏙 City</option>
+              <option>🚨 Security</option>
+            </select>
+            <input type="text" placeholder="Tìm player..." style="width:180px;padding:5px 10px;font-size:12px">
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="log-item">
+            <span class="log-time">14:32:18</span>
+            <span class="log-icon">⚔</span>
+            <span class="log-text"><strong>NightWolf</strong> <span class="danger">RAID</span> nhà của <strong>SunFlare</strong> tại Hex (12,45) — Thành công — Lấy 500 coin</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">14:28:05</span>
+            <span class="log-icon">🏙</span>
+            <span class="log-text">Hex <span class="accent">(33,20)</span> tiến hóa: <strong>Làng → Thị Trấn</strong> — activity_score: 1250, trade_score: 890</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">14:15:44</span>
+            <span class="log-icon">💀</span>
+            <span class="log-text">Boss <strong>Rồng Lửa</strong> bị <span class="success">hạ gục</span> bởi Guild <span class="accent">StormBreaker</span> — 24 người tham chiến — 48:22 phút</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">14:02:11</span>
+            <span class="log-icon">🚨</span>
+            <span class="log-text"><span class="danger">SECURITY</span> Multi-account phát hiện: IP 192.168.1.x — 3 accounts — Tất cả đã khóa tự động</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">13:55:30</span>
+            <span class="log-icon">💰</span>
+            <span class="log-text"><strong>TraderKing</strong> ↔ <strong>Merchant99</strong> — <span class="accent">5,000 coin</span> + 3× Sách Tri Thức ↔ 2× Kiếm Đồng</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">13:40:00</span>
+            <span class="log-icon">🏙</span>
+            <span class="log-text">Thành phố <span class="accent">Bắc Môn</span> được thành lập lần đầu bởi <strong>AquaMarine</strong> tại Hex (8,30)</span>
+          </div>
+          <div class="log-item">
+            <span class="log-time">13:22:15</span>
+            <span class="log-icon">📚</span>
+            <span class="log-text"><strong>MoonShadow</strong> trả lời <span class="success">ĐÚNG</span> 10/10 câu trong trận chiến — Gây 5x damage</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- GOD MODE OVERLAY -->
+<div class="god-overlay" id="godOverlay" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="god-modal">
+    <div class="god-title">☠ GOD MODE</div>
+    <div class="god-warn">⚠ Cẩn thận — Mọi thay đổi có hiệu lực ngay lập tức</div>
+    <div class="god-actions">
+      <div class="god-action">🌀 Teleport Player</div>
+      <div class="god-action">🐉 Spawn Boss ngay</div>
+      <div class="god-action">❄ Freeze Server</div>
+      <div class="god-action">💰 Reset Economy</div>
+      <div class="god-action">🗺 Xem Full Map</div>
+      <div class="god-action">✏ Edit Hex trực tiếp</div>
+      <div class="god-action">💎 Cấp Coin cho Player</div>
+      <div class="god-action">🚫 Ban Player</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('godOverlay').classList.remove('show')">Đóng</button>
+      <button class="btn btn-danger" style="flex:1">⚡ Xác nhận thực thi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Page navigation
+function switchPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+// Biome selection
+function selectBiome(el, biome) {
+  document.querySelectorAll('.biome-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  window.selectedBiome = biome;
+}
+window.selectedBiome = 'forest';
+
+// Generate hex grid
+function buildMap() {
+  const grid = document.getElementById('hexGrid');
+  if (!grid) return;
+  const biomes = ['forest','plain','mountain','desert','swamp','safe','water','forest','plain','mountain','swamp','forest','plain','city','plain','forest','desert','mountain','swamp','plain'];
+  let html = '';
+  const rows = 12, cols = 18;
+  for (let r = 0; r < rows; r++) {
+    html += `<div class="hex-row">`;
+    for (let c = 0; c < cols; c++) {
+      const b = biomes[Math.floor(Math.random() * biomes.length)];
+      html += `<div class="hex ${b}" data-r="${r}" data-c="${c}" data-biome="${b}" onclick="paintHex(this)" onmousedown="startDraw(this)" onmouseenter="drawHex(this)"></div>`;
+    }
+    html += `</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+let isDrawing = false;
+function startDraw(el) { isDrawing = true; paintHex(el); }
+function drawHex(el) { if (isDrawing) paintHex(el); }
+document.addEventListener('mouseup', () => isDrawing = false);
+
+function paintHex(el) {
+  const b = window.selectedBiome;
+  el.className = 'hex ' + b;
+  el.dataset.biome = b;
+}
+
+// Zone toggles
+function toggleZone(el) { el.classList.toggle('on'); }
+
+// Quest builder
+function addQuestBlock(icon, label) {
+  const container = document.getElementById('questBlocks');
+  if (container.querySelector('div[style]')) container.innerHTML = '';
+  const block = document.createElement('div');
+  block.className = 'quest-block';
+  block.innerHTML = `<span class="block-icon">${icon}</span><span class="block-label">${label}</span><span class="block-remove" onclick="this.parentElement.remove()">✕</span>`;
+  container.appendChild(block);
+}
+
+function clearQuest() {
+  const c = document.getElementById('questBlocks');
+  c.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;margin:auto;padding:20px">Click palette để thêm bước ↑</div>';
+}
+
+function selectShopType(el) {
+  el.parentElement.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// Event activate
+function activateEvent(el, name) {
+  const wasActive = el.style.opacity === '0.5';
+  if (wasActive) { el.style.opacity = '1'; el.style.transform = ''; }
+  else { el.style.opacity = '0.5'; el.style.transform = 'scale(0.97)'; alert('✅ ' + name + ' đã được kích hoạt!'); }
+}
+
+// Refresh stats
+function refreshStats() {
+  const el = document.getElementById('stat-online');
+  if (el) el.textContent = 240 + Math.floor(Math.random() * 30);
+}
+
+// Init
+buildMap();
+</script>
+
+<script>
+/* ═══ ADMIN ↔ GAME BRIDGE (localStorage) ═══ */
+function readGameData(){
+  try{const d=JSON.parse(localStorage.getItem('nexus_game_data')||'null');
+    if(d&&Date.now()-d.timestamp<30000)return d;return null;}
+  catch(e){return null;}
+}
+function sendGameCmd(type,extra){
+  try{localStorage.setItem('nexus_admin_cmd',JSON.stringify({type,...extra,timestamp:Date.now()}));
+    adminToast('✅ Lệnh đã gửi tới game!','success');}
+  catch(e){adminToast('❌ Hãy mở game.html trước','danger');}
+}
+function openGameClient(){
+  window.open('game.html?from=admin','_blank');
+}
+function adminToast(msg,type){
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;bottom:20px;right:20px;z-index:9999;padding:10px 16px;border-radius:8px;font-size:12px;max-width:260px;';
+  d.style.background=type==='success'?'rgba(0,255,136,.12)':type==='danger'?'rgba(255,51,85,.12)':'rgba(0,212,255,.1)';
+  d.style.border='1px solid '+(type==='success'?'rgba(0,255,136,.4)':type==='danger'?'rgba(255,51,85,.4)':'rgba(0,212,255,.3)');
+  d.style.color=type==='success'?'#00ff88':type==='danger'?'#ff3355':'#00d4ff';
+  d.textContent=msg;document.body.appendChild(d);
+  setTimeout(()=>d.remove(),3000);
+}
+
+// Live game data sync every 3s
+setInterval(()=>{
+  const d=readGameData();if(!d)return;
+  const el=document.getElementById('stat-online');
+  if(el)el.textContent=d.online;
+  // Feed game chat into admin logs
+  if(d.chat&&d.chat.length){
+    const msg=d.chat[d.chat.length-1];
+    const key='last_'+msg.t+msg.name;
+    if(sessionStorage.getItem(key))return;
+    sessionStorage.setItem(key,'1');
+    const logBody=document.querySelector('#page-logs .panel-body');
+    if(logBody){
+      const r=document.createElement('div');r.className='log-item';
+      r.innerHTML='<span class="log-time">'+msg.t+'</span><span class="log-icon">💬</span><span class="log-text"><strong>'+msg.name+'</strong> '+msg.text+'</span>';
+      logBody.insertBefore(r,logBody.firstChild);
+    }
+  }
+},3000);
+
+// Patch god mode actions on load
+document.addEventListener('DOMContentLoaded',()=>{
+  const actions=document.querySelectorAll('.god-action');
+  if(actions[0])actions[0].onclick=()=>{
+    const x=prompt('Teleport Hex X (0-59):','20');
+    const y=prompt('Teleport Hex Y (0-39):','15');
+    if(x!==null&&y!==null)sendGameCmd('teleport',{x:+x,y:+y});
+  };
+  if(actions[1])actions[1].onclick=()=>sendGameCmd('spawn_boss',{});
+  if(actions[2])actions[2].onclick=()=>adminToast('❄ Server Freeze: Cần backend thật','warn');
+  if(actions[6])actions[6].onclick=()=>{
+    const a=prompt('Số coin muốn tặng:','500');
+    if(a!==null)sendGameCmd('give_coin',{amount:+a});
+  };
+  if(actions[7])actions[7].onclick=()=>adminToast('🚫 Ban Player: Cần backend thật','warn');
+});
+</script>
+
+</body>
+</html>
